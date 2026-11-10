@@ -144,6 +144,27 @@ def face(r, st, kind):
     return s
 
 
+def face_profile(r, st, kind, skin):
+    """Side view, facing +x in head space (used in ruku and sajda, so the face points at the floor)."""
+    blink = st.get('blink', 0)
+    s = f'<ellipse cx="{-r*.3}" cy="{r*.08}" rx="{r*.12}" ry="{r*.17}" fill="{shade(skin,.9)}" stroke="{INK}" stroke-width="3.5"/>'       # ear
+    s += f'<path d="M{-r*.33},{r*.0} q{r*.05},{r*.08} 0,{r*.15}" fill="none" stroke="{INK}" stroke-width="2.2" opacity=".5"/>'
+    # nose sticking out past the outline
+    s += (f'<path d="M{r*.9},{-r*.12} Q{r*1.18},{r*.14} {r*1.0},{r*.24} Q{r*.92},{r*.28} {r*.86},{r*.22}Z" fill="{skin}" {SW(4)}/>')
+    ex_, ey_ = r * .58, -r * .1
+    if blink > 0.5:
+        s += f'<path d="M{ex_-r*.1},{ey_} Q{ex_},{ey_+r*.05} {ex_+r*.1},{ey_}" fill="none" {SW(4)}/>'
+    else:
+        s += f'<path d="M{ex_-r*.1},{ey_} Q{ex_},{ey_-r*.14} {ex_+r*.12},{ey_+r*.01} Q{ex_},{ey_+r*.1} {ex_-r*.1},{ey_}Z" fill="#fff" {SW(3.5)}/>'
+        s += f'<circle cx="{ex_+r*.05}" cy="{ey_}" r="{r*.065}" fill="#3a1f10"/><circle cx="{ex_+r*.07}" cy="{ey_-r*.03}" r="{r*.022}" fill="#fff"/>'
+        if kind == 'maryam': s += f'<path d="M{ex_+r*.1},{ey_-r*.05} l{r*.08},{-r*.05}" {SW(3)}/>'
+    col = '#2a1a12' if kind != 'nana' else '#8f8a85'
+    s += f'<path d="M{ex_-r*.14},{ey_-r*.24} Q{ex_},{ey_-r*.32} {ex_+r*.18},{ey_-r*.24}" fill="none" stroke="{col}" stroke-width="6" stroke-linecap="round"/>'
+    s += f'<path d="M{r*.66},{r*.48} Q{r*.78},{r*.52} {r*.86},{r*.46}" fill="none" {SW(4)}/>'                     # calm closed mouth
+    s += f'<ellipse cx="{r*.4}" cy="{r*.3}" rx="{r*.16}" ry="{r*.1}" fill="url(#blush)"/>'
+    return s
+
+
 # ------------------------------------------------------------------ limbs
 def pt(x, y, ang, L):
     a = math.radians(ang); return x + L * math.sin(a), y + L * math.cos(a)
@@ -276,6 +297,40 @@ def hair(style, hy):
 DIMS = {'kid': (150, 70), 'girl': (140, 66), 'nana': (175, 84)}
 
 
+# per body type: hip height, thigh, shin, shoulder front (x,y), shoulder back, upper arm, forearm, head centre y, head r, hand size
+BODY = {'kid': dict(hip=150, thigh=70, sf=(42, -280), sb=(-40, -280), L1=60, L2=56, head=-360, r=70, hand=26),
+        'girl': dict(hip=140, thigh=66, sf=(38, -272), sb=(-36, -272), L1=56, L2=52, head=-342, r=60, hand=23),
+        'nana': dict(hip=175, thigh=84, sf=(52, -392), sb=(-50, -392), L1=86, L2=80, head=-486, r=62, hand=30)}
+
+
+def _rot(px, py, cx, cy, deg):
+    a = math.radians(deg); dx, dy = px - cx, py - cy
+    return cx + dx * math.cos(a) - dy * math.sin(a), cy + dx * math.sin(a) + dy * math.cos(a)
+
+
+def _ik(sx, sy, tx, ty, L1, L2, up=True):
+    """two-bone IK in screen space; returns world angles (0 = down, + = forward) of upper arm and forearm"""
+    dx, dy = tx - sx, ty - sy; d = max(1e-6, min(math.hypot(dx, dy), L1 + L2 - 1))
+    w0 = math.atan2(dx, dy); c = (L1 * L1 + d * d - L2 * L2) / (2 * L1 * d); a1 = math.acos(max(-1, min(1, c)))
+    best = None
+    for sgn in (1, -1):
+        w1 = w0 + sgn * a1; ex, ey = sx + L1 * math.sin(w1), sy + L1 * math.cos(w1)
+        w2 = math.atan2(tx - ex, ty - ey)
+        if best is None or (ey < best[2]) == up: best = (w1, w2, ey)
+    return math.degrees(best[0]), math.degrees(best[1])
+
+
+def _arm_to(B, lean, drop, shoulder, target, up):
+    hipy = -B['hip']
+    sx, sy = _rot(shoulder[0], shoulder[1], 0, hipy, lean); sy += drop
+    w1, w2 = _ik(sx, sy, target[0], target[1], B['L1'], B['L2'] + B['hand'] * 0.6, up)
+    return lean + w1, w2 - w1          # body-frame shoulder angle, elbow bend
+
+
+def _nose(B, lean, drop):
+    r = B['r']; return _rot(r * 1.08, B['head'] + r * 0.2, 0, -B['hip'], lean)[0], _rot(r * 1.08, B['head'] + r * 0.2, 0, -B['hip'], lean)[1] + drop
+
+
 def apply_pose(st, kind):
     """Salah and sitting positions. Sets arms, lean, legs and how far the body drops."""
     p = st.get('pose')
@@ -289,10 +344,25 @@ def apply_pose(st, kind):
     elif p == 'qiyam':
         put(arm_f=22, elb_f=-112, hand_f='relax', arm_b=24, elb_b=85, hand_b='relax')
     elif p == 'ruku':
-        put(lean=84, arm_f=24, elb_f=-6, hand_f='relax', arm_b=26, elb_b=-6, hand_b='relax', look_y=0.8)
+        # back flat, head in line with the back, face looking at the floor; hands on the knees
+        B = BODY[kind]; lean = 90; q['profile'] = True
+        knee = (6, -B['hip'] + B['thigh'])
+        af, ef = _arm_to(B, lean, 0, B['sf'], (knee[0] + 10, knee[1] - 6), up=False)
+        ab, eb = _arm_to(B, lean, 0, B['sb'], (knee[0] - 6, knee[1] - 4), up=False)
+        put(lean=lean, arm_f=af, elb_f=ef, hand_f='relax', arm_b=ab, elb_b=eb, hand_b='relax')
     elif p == 'sajda':
-        q['legs'] = (0, 92, 0, 92, 0, 0); q['drop'] = hip - thigh - 24
-        put(lean=103, arm_f=163, elb_f=30, hand_f='open', arm_b=160, elb_b=32, hand_b='open', look_y=0.6, expr='neutral')
+        # knees on the floor, forehead and nose on the floor, palms flat beside the head, elbows up
+        B = BODY[kind]; q['profile'] = True
+        q['legs'] = (0, 92, 0, 92, 0, 0); drop = B['hip'] - B['thigh'] - 20; q['drop'] = drop
+        lo, hi = 90.0, 170.0
+        for _ in range(40):                              # find the bend where the nose just touches the floor (y = 0)
+            mid = (lo + hi) / 2
+            if _nose(B, mid, drop)[1] < -2: lo = mid
+            else: hi = mid
+        lean = lo; nx, ny = _nose(B, lean, drop)
+        af, ef = _arm_to(B, lean, drop, B['sf'], (nx - B['r'] * 1.75, -8), up=True)
+        ab, eb = _arm_to(B, lean, drop, B['sb'], (nx - B['r'] * 1.9, -8), up=True)
+        put(lean=lean, arm_f=af, elb_f=ef, hand_f='open', arm_b=ab, elb_b=eb, hand_b='open')
     elif p == 'sit':
         q['legs'] = (88, 172, 84, 172, 0, 0); q['drop'] = hip - 36
         put(arm_f=50, elb_f=-38, hand_f='relax', arm_b=52, elb_b=-38, hand_b='relax')
@@ -328,8 +398,9 @@ def ali(st, look=None):
     hy = -366
     g += f'<rect x="-15" y="-312" width="30" height="24" fill="{shade(ALI_SKIN_,.88)}"/>'
     g += f'<g transform="rotate({st.get("head_tilt",0)},0,-300)">'
-    g += f'<ellipse cx="-70" cy="{hy+8}" rx="15" ry="19" fill="{shade(ALI_SKIN_,.94)}" {SW(4)}/>'
-    g += f'<ellipse cx="74" cy="{hy+8}" rx="13" ry="18" fill="{ALI_SKIN_}" {SW(4)}/>'
+    PROF = st.get('profile')
+    if not PROF: g += f'<ellipse cx="-70" cy="{hy+8}" rx="15" ry="19" fill="{shade(ALI_SKIN_,.94)}" {SW(4)}/>'
+    if not PROF: g += f'<ellipse cx="74" cy="{hy+8}" rx="13" ry="18" fill="{ALI_SKIN_}" {SW(4)}/>'
     # round face, full cheeks
     g += f'<path d="M-70,{hy-20} Q-74,{hy+50} -38,{hy+70} Q0,{hy+86} 40,{hy+70} Q76,{hy+50} 72,{hy-20} Q66,{hy-80} 0,{hy-82} Q-64,{hy-80} -70,{hy-20}Z" fill="{ALI_SKIN_}" {SW()}/>'
     g += f'<path d="M-62,{hy+20} Q-60,{hy+56} -30,{hy+70}" fill="none" stroke="{shade(ALI_SKIN_,.85)}" stroke-width="10" opacity=".5"/>'
@@ -340,7 +411,7 @@ def ali(st, look=None):
     g += f'<path d="M-56,{hy-60} Q0,{hy-74} 56,{hy-60}" fill="none" stroke="#d8d4c4" stroke-width="4"/>'
     for i in range(-3, 4):
         g += f'<path d="M{i*15},{hy-108+abs(i)*2} L{i*17},{hy-70}" stroke="#e3dfd0" stroke-width="2"/>'
-    g += f'<g transform="translate(0,{hy+6})">' + face(70, st, L['kind']) + '</g>'
+    g += f'<g transform="translate(0,{hy+6})">' + (face_profile(70, st, L['kind'], ALI_SKIN_) if PROF else face(70, st, L['kind'])) + '</g>'
     g += '</g>'
     # front arm
     g += arm(42, -280 + _shoulder_lift(af), af, ebf, 60, 56, 27, RED, .45, ALI_SKIN_, st.get('hand_f', 'relax'),
@@ -373,7 +444,7 @@ def maryam(st):
     g += f'<ellipse cx="0" cy="{hy+6}" rx="62" ry="64" fill="{MAR_SKIN}" {SW()}/>'
     g += f'<path d="M-66,{hy-2} Q-60,{hy-60} 0,{hy-66} Q60,{hy-60} 66,{hy-2} Q50,{hy-46} 0,{hy-50} Q-50,{hy-46} -66,{hy-2}Z" fill="{SCARF}" {SW(4)}/>'
     g += f'<path d="M-40,{hy-40} Q0,{hy-52} 40,{hy-40}" fill="none" stroke="#2a1a12" stroke-width="8" stroke-linecap="round"/>'
-    g += f'<g transform="translate(0,{hy+10})">' + face(60, st, 'maryam') + '</g></g>'
+    g += f'<g transform="translate(0,{hy+10})">' + (face_profile(60, st, 'maryam', MAR_SKIN) if st.get('profile') else face(60, st, 'maryam')) + '</g></g>'
     g += arm(38, -272 + _shoulder_lift(af), af, ebf, 56, 52, 24, DRESS, 2, MAR_SKIN, st.get('hand_f', 'relax'))
     g += f'<ellipse cx="34" cy="{-268 + _shoulder_lift(af)}" rx="16" ry="15" fill="{DRESS}"/>'
     g += '</g></g>'
@@ -403,30 +474,38 @@ def nana(st):
     hy = -488
     g += f'<rect x="-17" y="-438" width="34" height="26" fill="{shade(NANA_SKIN,.88)}"/>'
     g += f'<g transform="rotate({st.get("head_tilt",0)},0,-420)">'
-    g += f'<ellipse cx="-58" cy="{hy+6}" rx="13" ry="18" fill="{shade(NANA_SKIN,.94)}" {SW(4)}/><ellipse cx="62" cy="{hy+6}" rx="12" ry="17" fill="{NANA_SKIN}" {SW(4)}/>'
+    PROF = st.get('profile')
+    if not PROF: g += f'<ellipse cx="-58" cy="{hy+6}" rx="13" ry="18" fill="{shade(NANA_SKIN,.94)}" {SW(4)}/><ellipse cx="62" cy="{hy+6}" rx="12" ry="17" fill="{NANA_SKIN}" {SW(4)}/>'
     g += f'<path d="M-60,{hy-10} Q-62,{hy+56} -30,{hy+74} Q0,{hy+86} 32,{hy+74} Q64,{hy+56} 62,{hy-10} Q58,{hy-74} 0,{hy-76} Q-58,{hy-74} -60,{hy-10}Z" fill="{NANA_SKIN}" {SW()}/>'
     # grey hair: short, combed, receding at the temples
     g += (f'<path d="M-62,{hy-6} Q-70,{hy-56} -36,{hy-74} Q0,{hy-90} 38,{hy-74} Q70,{hy-56} 62,{hy-6} Q56,{hy-40} 40,{hy-50} Q8,{hy-66} -20,{hy-58} '
           f'Q-44,{hy-50} -56,{hy-30}Z" fill="#a9a6a2" {SW(4)}/>')
     for i in range(-3, 4): g += f'<path d="M{i*13-4},{hy-80+abs(i)*3} Q{i*14},{hy-66} {i*15+6},{hy-56}" fill="none" stroke="#d7d5d1" stroke-width="3" opacity=".9"/>'
-    g += f'<g transform="translate(0,{hy+2})">' + face(62, st, 'nana')
-    # short white beard (jaw + chin) and moustache
-    talk = st.get('talk', 0) + ex(st.get('expr'))['mopen'] * .55
-    jaw = min(talk, 1) * 10
-    fx = 62 * 0.14
-    g += (f'<path d="M-58,4 Q-58,{60+jaw} -22,{80+jaw} Q{fx},{92+jaw} 34,{80+jaw} Q62,{60+jaw} 60,4 Q54,40 40,46 Q{fx},{36} -24,46 Q-50,40 -58,4Z" '
-          f'fill="#eeeeea" {SW(4)}/>')
-    for i in range(7): g += f'<path d="M{-40+i*13},{50+jaw} q2,12 0,22" stroke="#c9c7c1" stroke-width="2.4" fill="none"/>'
-    g += f'<path d="M{fx-26},22 Q{fx-12},14 {fx},20 Q{fx+12},14 {fx+26},22 Q{fx+14},28 {fx},24 Q{fx-14},28 {fx-26},22Z" fill="#dcdad4" {SW(3)}/>'
-    # aviator glasses: teardrop lenses, thin metal double bridge, dark tortoise rims
-    for sx in (-1, 1):
-        cx = fx + sx * 62 * .36 * (0.92 if sx < 0 else 1)
-        lens = f'M{cx-21},{-22} Q{cx},{-27} {cx+21},{-22} Q{cx+24},{2} {cx+12},{12} Q{cx},{18} {cx-12},{12} Q{cx-24},{2} {cx-21},{-22}Z'
-        g += f'<path d="{lens}" fill="url(#glass)" stroke="#3a2a22" stroke-width="5"/>'
-        g += f'<path d="M{cx-17},{-20} Q{cx},{-24} {cx+17},{-20}" fill="none" stroke="#c9b48a" stroke-width="2"/>'
-    l, r_ = fx - 62 * .36 * .92 + 21, fx + 62 * .36 - 21
-    g += f'<path d="M{l},-20 Q{(l+r_)/2},-28 {r_},-20 M{l+1},-12 L{r_-1},-12" fill="none" stroke="#c9b48a" stroke-width="3"/>'
-    g += f'<path d="M{fx + 62*.36 + 21},-20 L60,-14" stroke="#3a2a22" stroke-width="4"/>'
+    if PROF:
+        g += f'<g transform="translate(0,{hy+2})">' + face_profile(62, st, 'nana', NANA_SKIN)
+        g += (f'<path d="M-4,8 Q-2,58 30,76 Q54,84 66,62 Q70,44 62,30 Q56,40 44,38 Q30,30 20,34 Q8,30 -4,8Z" fill="#eeeeea" {SW(4)}/>')   # beard along the jaw
+        g += f'<path d="M40,26 Q52,20 62,26" fill="none" stroke="#dcdad4" stroke-width="7" stroke-linecap="round"/>'                      # moustache
+        g += (f'<path d="M24,-20 Q36,-24 50,-20 Q52,-4 44,4 Q36,8 28,2 Q22,-6 24,-20Z" fill="url(#glass)" stroke="#3a2a22" stroke-width="5"/>'
+              f'<path d="M24,-16 L-6,-10" stroke="#3a2a22" stroke-width="4"/>')                                                            # one lens + temple
+    else:
+        g += f'<g transform="translate(0,{hy+2})">' + face(62, st, 'nana')
+        # short white beard (jaw + chin) and moustache
+        talk = st.get('talk', 0) + ex(st.get('expr'))['mopen'] * .55
+        jaw = min(talk, 1) * 10
+        fx = 62 * 0.14
+        g += (f'<path d="M-58,4 Q-58,{60+jaw} -22,{80+jaw} Q{fx},{92+jaw} 34,{80+jaw} Q62,{60+jaw} 60,4 Q54,40 40,46 Q{fx},{36} -24,46 Q-50,40 -58,4Z" '
+              f'fill="#eeeeea" {SW(4)}/>')
+        for i in range(7): g += f'<path d="M{-40+i*13},{50+jaw} q2,12 0,22" stroke="#c9c7c1" stroke-width="2.4" fill="none"/>'
+        g += f'<path d="M{fx-26},22 Q{fx-12},14 {fx},20 Q{fx+12},14 {fx+26},22 Q{fx+14},28 {fx},24 Q{fx-14},28 {fx-26},22Z" fill="#dcdad4" {SW(3)}/>'
+        # aviator glasses: teardrop lenses, thin metal double bridge, dark tortoise rims
+        for sx in (-1, 1):
+            cx = fx + sx * 62 * .36 * (0.92 if sx < 0 else 1)
+            lens = f'M{cx-21},{-22} Q{cx},{-27} {cx+21},{-22} Q{cx+24},{2} {cx+12},{12} Q{cx},{18} {cx-12},{12} Q{cx-24},{2} {cx-21},{-22}Z'
+            g += f'<path d="{lens}" fill="url(#glass)" stroke="#3a2a22" stroke-width="5"/>'
+            g += f'<path d="M{cx-17},{-20} Q{cx},{-24} {cx+17},{-20}" fill="none" stroke="#c9b48a" stroke-width="2"/>'
+        l, r_ = fx - 62 * .36 * .92 + 21, fx + 62 * .36 - 21
+        g += f'<path d="M{l},-20 Q{(l+r_)/2},-28 {r_},-20 M{l+1},-12 L{r_-1},-12" fill="none" stroke="#c9b48a" stroke-width="3"/>'
+        g += f'<path d="M{fx + 62*.36 + 21},-20 L60,-14" stroke="#3a2a22" stroke-width="4"/>'
     g += '</g></g>'
     g += arm(52, -392 + _shoulder_lift(af), af, ebf, 86, 80, 32, KURTA, 2, NANA_SKIN, st.get('hand_f', 'relax'))
     g += f'<ellipse cx="47" cy="{-386 + _shoulder_lift(af)}" rx="20" ry="18" fill="{KURTA}"/>'
