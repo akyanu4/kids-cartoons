@@ -5,15 +5,35 @@ import story
 SR = 24000
 OUT = 'build/audio'; os.makedirs(OUT, exist_ok=True)
 VOICE = {  # who: (kokoro voice, pitch factor, speed) -- Hindi voices speak Hindustani/Urdu from Devanagari
-    'N': ('hf_beta', 1.0, 0.92), 'ALI': ('hf_alpha', 1.15, 1.0), 'MARYAM': ('hf_beta', 1.3, 1.02),
+    'N': ('hf_beta', 1.0, 0.95), 'ALI': ('hf_alpha', 1.17, 1.06), 'MARYAM': ('hf_beta', 1.32, 1.08),
     'NANA': ('hm_omega', 0.95, 0.88), 'KID_LAUGH': ('hf_beta', 1.3, 1.0)}
 EMO_VOICE = {  # emotion: (speed x, pitch x, volume)
-    'excited': (1.08, 1.05, 1.0), 'happy': (1.03, 1.02, 1.0), 'surprised': (1.05, 1.06, 1.0), 'laugh': (1.05, 1.04, 1.0),
-    'sad': (0.86, 0.97, 0.85), 'worried': (0.92, 1.0, 0.9), 'tired': (0.88, 0.97, 0.9), 'warm': (0.96, 1.0, 1.0), 'proud': (0.97, 1.0, 1.0)}
+    'excited': (1.12, 1.08, 1.0), 'happy': (1.06, 1.04, 1.0), 'surprised': (1.08, 1.09, 1.0), 'laugh': (1.08, 1.06, 1.0),
+    'sad': (0.84, 0.95, 0.82), 'worried': (0.9, 0.99, 0.88), 'tired': (0.86, 0.96, 0.88), 'warm': (0.95, 1.0, 1.0), 'proud': (0.98, 1.02, 1.0)}
 _k = None
+import re
 def tts(who, text, emo='neutral'):
+    """speak a line phrase by phrase: short natural pauses, a lift on exclamations, a rise on questions"""
+    parts = [p for p in re.split(r'(?<=[।!?,…])\s+|(?<=\.\.\.)\s*', text) if p.strip()]
+    if len(parts) <= 1: return tts1(who, text, emo, 1.0)
+    files = []
+    for i, p in enumerate(parts):
+        lift = 1.0
+        if p.rstrip().endswith('!'): lift = 1.035
+        if p.rstrip().endswith('?'): lift = 1.05
+        files.append((tts1(who, p, emo, lift), 0.32 if p.rstrip()[-1:] in '।.!?…' else 0.16))
+    key = hashlib.md5(('|'.join(f for f, _ in files)).encode()).hexdigest()[:12]
+    out = f'{OUT}/{who}_ph_{key}.wav'
+    if not os.path.exists(out):
+        chunks = []
+        for f, gap in files:
+            a, _ = sf.read(f); chunks += [a, np.zeros(int(SR * gap))]
+        sf.write(out, np.concatenate(chunks[:-1]), SR)
+    return out
+
+def tts1(who, text, emo='neutral', lift=1.0):
     global _k
-    v, p, sp = VOICE[who]; es, ep, ev = EMO_VOICE.get(emo, (1, 1, 1)); sp *= es; p *= ep
+    v, p, sp = VOICE[who]; es, ep, ev = EMO_VOICE.get(emo, (1, 1, 1)); sp *= es; p *= ep * lift
     key = hashlib.md5(f'{v}|{p}|{sp}|{ev}|{text}'.encode()).hexdigest()[:12]
     f = f'{OUT}/{who}_{key}.wav'
     if not os.path.exists(f):

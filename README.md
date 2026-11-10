@@ -1,7 +1,8 @@
 # Kids cartoons (2D)
 Original kids' moral stories and funny films, made with free tools. Moved here from noor-ul-hasrat/tools/cartoon.
-Two Urdu builds of the pilot exist side by side: story.py/chars.py/render.py (edited in place to Urdu) and the
-separate *_ur.py + chars2.py pipeline. Keep one once the user picks.
+Two Urdu builds of the pilot exist side by side: story.py/chars.py/voices.py/render.py (main: the v2 the user has been reviewing —
+Roman Urdu captions, English cards, hand style A, plain kurta, phrase-level voices; output build/ali_aur_pyasi_billi.mp4) and the
+separate *_ur.py + chars2.py pipeline (Nastaliq captions). Keep one once the user picks.
 Free 2D cartoon pipeline: SVG puppet characters (chars.py), story beats (story.py), Kokoro TTS voices (voices.py), renderer (render.py).
 Setup: pip install kokoro-onnx soundfile cairosvg; download kokoro-v1.0.int8.onnx and voices-v1.0.bin from
 github.com/thewh1teagle/kokoro-onnx/releases (model-files-v1.0) into models/.

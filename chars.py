@@ -31,7 +31,9 @@ def stroke2(d, w, col, ow=5):
             f'<path d="{d}" fill="none" stroke="{col}" stroke-width="{w}" stroke-linecap="round" stroke-linejoin="round"/>')
 
 
-def hand(x, y, ang, pose='relax', s=1.0, col=SKIN, flip=False):
+HAND_FLIP = False
+def hand(x, y, ang, pose='relax', s=1.0, col=SKIN, flip=None):
+    if flip is None: flip = HAND_FLIP
     """cartoon hand at wrist (x,y), pointing along the forearm angle. Outlines first, then fills, so fingers merge with the palm."""
     fingers = []
     if pose == 'open':
@@ -217,13 +219,15 @@ def _pose(st, walk_amp=1.0):
         P['head'] += -2 * a
         lag = math.sin(ph * 2 * math.pi - 0.6)                       # forearm follows a little behind
         if 'arm_f' not in st and st.get('hold') is None: P['af'] = 6 - 22 * a * walk_amp; P['ef'] = 20 + 16 * max(0, -lag)
-        if 'arm_b' not in st: P['ab'] = 6 + 22 * a * walk_amp; P['eb'] = 20 + 16 * max(0, lag)
+        if 'arm_b' not in st: P['ab'] = -4 + 14 * a * walk_amp; P['eb'] = 12 + 10 * max(0, lag)
         P['lean'] += 1.5 * a
-    m = st.get('mouth', 0)
-    if m > 0.05:
-        P['head'] += 4 * math.sin(t * 5.3)
+    g = st.get('talk', 0.0)
+    if g > 0:
+        P['head'] += 4 * g * math.sin(t * 5.3)
         if st.get('gesture', True) and 'arm_f' not in st and st.get('hold') is None and ph is None:
-            P['af'] = 42 + 16 * math.sin(t * 2.7); P['ef'] = 55 + 18 * math.sin(t * 3.9); P['hf'] = 'open'
+            ga, ge = 42 + 14 * math.sin(t * 1.9), 55 + 15 * math.sin(t * 2.6)
+            P['af'] = P['af'] + (ga - P['af']) * g; P['ef'] = P['ef'] + (ge - P['ef']) * g
+            P['hf'] = 'open' if g > 0.5 else P['hf']
     emo = st.get('emo')
     P['shf'] = -9 * max(0.0, min(1.0, (P['af'] - 50) / 90))      # shoulder rises when the arm goes up
     if emo in ('sad', 'tired'): P['head'] += 6; P['lean'] += 3
@@ -247,10 +251,10 @@ def kid(st, girl=False):
     g += '<ellipse cx="6" cy="6" rx="62" ry="10" fill="#000" opacity=".12"/>'
     g += f'<g transform="rotate({P["lean"]:.1f},0,-150)">'
     if girl:
-        g += arm(-28, -258, P['ab'], P['eb'], 58, 56, 26, sleeve, P['hb'], back=True, skin=skin)
+        g += arm(-40, -258, P['ab'], P['eb'], 58, 56, 26, sleeve, P['hb'], back=True, skin=skin)
     else:   # T-shirt: short sleeve, bare forearm
-        g += arm(-28, -258, P['ab'], P['eb'], 58, 56, 24, skin, P['hb'], back=True, skin=skin)
-        g += _sleeve(-28, -258, P['ab'], body, back=True)
+        g += arm(-40, -258, P['ab'], P['eb'], 58, 56, 24, skin, P['hb'], back=True, skin=skin)
+        g += _sleeve(-40, -258, P['ab'], body, back=True)
     g += leg(-14, -150, P['lb'], P['kb'], 74, 66, 32, pants, shoe, back=True)
     g += leg(14, -150, P['lf'], P['kf'], 74, 66, 32, pants, shoe)
     if girl:
@@ -281,27 +285,30 @@ def kid(st, girl=False):
         g += face(0, hy + 4, 70, st, skin, brow_w=8, brow_col='#1d1a1c')
     g += '</g>'
     if girl:
-        g += arm(30, -258 + P['shf'], P['af'], P['ef'], 58, 56, 26, sleeve, P['hf'], holding=st.get('hold'), hold_tilt=st.get('hold_tilt', 0), skin=skin) + cap(30, -258 + P['shf'], P['af'], sleeve, 18)
+        g += arm(30, -258 + P['shf'], P['af'], P['ef'], 58, 56, 26, sleeve, P['hf'], holding=st.get('hold'), hold_tilt=st.get('hold_tilt', 0), skin=skin) + cap(30, -258 + P['shf'], P['af'], sleeve, 18, clip='M-46,-286 Q-56,-200 -76,-66 Q0,-50 76,-66 Q56,-200 46,-286 Q0,-300 -46,-286Z')
     else:
         g += arm(30, -258 + P['shf'], P['af'], P['ef'], 58, 56, 24, skin, P['hf'], holding=st.get('hold'), hold_tilt=st.get('hold_tilt', 0), skin=skin)
-        g += _sleeve(30, -258 + P['shf'], P['af'], body)
+        g += _sleeve(30, -258 + P['shf'], P['af'], body, clip='M-50,-288 Q-56,-210 -58,-140 Q0,-128 58,-140 Q56,-210 50,-288 Q0,-302 -50,-288Z')
     return g + '</g></g>'
 
 
-def cap(sx, sy, a, col, r, back=False):
+def cap(sx, sy, a, col, r, back=False, clip=None):
     """blend an arm root into the body: fill over the seam, then redraw just the outer shoulder contour"""
     c = _shade(col) if back else col
     dx, dy = _dir(a); ang = math.degrees(math.atan2(dy, dx))      # arm direction in screen degrees
     a0, a1 = math.radians(-160), math.radians(-20)               # contour over the top of the shoulder
     p0 = (sx + r * math.cos(a0), sy + r * math.sin(a0)); p1 = (sx + r * math.cos(a1), sy + r * math.sin(a1))
+    if clip:
+        cid = 'c' + str(abs(hash(clip)) % 100000)
+        return f'<clipPath id="{cid}"><path d="{clip}"/></clipPath><circle cx="{sx}" cy="{sy}" r="{r+6:.1f}" fill="{c}" clip-path="url(#{cid})"/>'
     return f'<circle cx="{sx}" cy="{sy}" r="{r-3:.1f}" fill="{c}"/>'
 
 
 
-def _sleeve(sx, sy, a, col, back=False):
+def _sleeve(sx, sy, a, col, back=False, clip=None):
     dx, dy = _dir(a); ex, ey = sx + dx * 30, sy + dy * 30
     c = _shade(col) if back else col
-    return stroke2(f'M{sx},{sy} L{ex:.1f},{ey:.1f}', 34, c) + cap(sx, sy, a, col, 20, back)
+    return stroke2(f'M{sx},{sy} L{ex:.1f},{ey:.1f}', 34, c) + cap(sx, sy, a, col, 20, back, clip)
 
 
 def nana(st):
@@ -311,12 +318,11 @@ def nana(st):
     g = f'{defs}<g transform="translate({x:.1f},{y+P["bob"]*s:.1f}) scale({s*f:.3f},{s:.3f})">'
     g += '<ellipse cx="6" cy="6" rx="70" ry="11" fill="#000" opacity=".12"/>'
     g += f'<g transform="rotate({P["lean"]:.1f},0,-170)">'
-    g += arm(-36, -388, P['ab'], P['eb'], 84, 80, 30, kurta, P['hb'], back=True, skin=skin)
+    g += arm(-48, -388, P['ab'], P['eb'], 84, 80, 30, kurta, P['hb'], back=True, skin=skin)
     g += leg(-16, -170, P['lb'], P['kb'], 86, 80, 34, '#ecebe4', '#5a3b28', back=True)
     g += leg(16, -170, P['lf'], P['kf'], 86, 80, 34, '#ecebe4', '#5a3b28')
     g += f'<path d="M-64,-416 Q-74,-300 -82,-122 Q0,-106 82,-122 Q74,-300 64,-416 Q0,-432 -64,-416Z" fill="{kurta}" stroke="{INK}" stroke-width="5" stroke-linejoin="round"/>'
-    g += f'<path d="M8,-412 L8,-250" stroke="#d8d6cc" stroke-width="4"/>' + ''.join(f'<circle cx="8" cy="{yy}" r="4.5" fill="#e9e6da" stroke="#9c958a" stroke-width="1.5"/>' for yy in (-392, -354, -316, -278))
-    g += f'<rect x="22" y="-330" width="34" height="38" rx="4" fill="none" stroke="#d2d0c6" stroke-width="3.5"/>'
+    g += f'<path d="M8,-412 L8,-330" stroke="#e2e0d6" stroke-width="3"/>'
     hy = -484
     g += f'<g transform="rotate({P["head"]:.1f},0,-426)">'
     g += f'<path d="M-24,-432 L-26,-412 Q0,-404 26,-412 L24,-432Z" fill="{kurta}" stroke="{INK}" stroke-width="4"/>'
@@ -328,7 +334,7 @@ def nana(st):
     g += f'<path d="M-24,{hy-76} q10,-6 22,-2 M6,{hy-80} q12,-4 22,2" fill="none" stroke="#e8e6e1" stroke-width="4" stroke-linecap="round"/>'
     g += face(0, hy, 62, st, skin, beard='short', glasses='aviator', brow_w=6, brow_col='#8a8379')
     g += '</g>'
-    g += arm(38, -388 + P['shf'], P['af'], P['ef'], 84, 80, 30, kurta, P['hf'], skin=skin) + cap(38, -388 + P['shf'], P['af'], kurta, 21)
+    g += arm(38, -388 + P['shf'], P['af'], P['ef'], 84, 80, 30, kurta, P['hf'], skin=skin) + cap(38, -388 + P['shf'], P['af'], kurta, 21, clip='M-64,-416 Q-74,-300 -82,-122 Q0,-106 82,-122 Q74,-300 64,-416 Q0,-432 -64,-416Z')
     return g + '</g></g>'
 
 

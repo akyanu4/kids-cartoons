@@ -122,6 +122,14 @@ def mouth(t, who):
                 return e[i] if i < len(e) else 0
     return 0
 
+def talk(t, who, ramp=0.35):
+    best = 0.0
+    for s in SHOTS:
+        for b in s['beats']:
+            if b['kind'] == 'say' and b['who'] == who and b['t'] - ramp <= t < b['t'] + b['d'] + ramp:
+                best = max(best, min(1.0, (t - b['t'] + ramp) / ramp, (b['t'] + b['d'] + ramp - t) / ramp))
+    return ease(best)
+
 def speaking(t, who): return mouth(t, who) > 0.05 or any(b['kind'] == 'say' and b['who'] == who and b['t'] <= t < b['t'] + b['d'] for s in SHOTS for b in s['beats'])
 
 def beat(shot, i): return shot['beats'][i]
@@ -162,6 +170,7 @@ def scene(t):
     sh = shot_at(t); n = sh['name']; lt = t - sh['t0']; D = sh['t1'] - sh['t0']
     A = lambda **k: dict(k, t=t) if 't' not in k else dict(k)
     mA, mM, mN, mC = mouth(t, 'ALI'), mouth(t, 'MARYAM'), mouth(t, 'NANA'), mouth(t, 'CAT')
+    tA, tM, tN = talk(t, 'ALI'), talk(t, 'MARYAM'), talk(t, 'NANA')
     eA, eM, eN = (lambda d='neutral': emo_of(t, 'ALI', d)), (lambda d='neutral': emo_of(t, 'MARYAM', d)), (lambda d='neutral': emo_of(t, 'NANA', d))
     bl = lambda i: blink(t, i)
     over = ''
@@ -180,9 +189,9 @@ def scene(t):
         ph = lt * 1.6 if walking else None
         camx = max(0, min(3400 - W, wx - 820))
         ali_talk = speaking(t, 'ALI')
-        aliT = A(x=wx + 120, y=GROUND, s=1.0, walk=ph, mouth=mA, blink=bl(1), emo=eA('tired' if not walking else 'neutral'), face=(-1 if (not walking and ali_talk) else 1))
+        aliT = A(x=wx + 120, y=GROUND, s=1.0, walk=ph, mouth=mA, talk=tA, blink=bl(1), emo=eA('tired' if not walking else 'neutral'), face=(-1 if (not walking and ali_talk) else 1))
         if not walking and ali_talk: aliT.update(arm_f=150, el_f=70, hand_f='open')      # wipes his forehead
-        marT = A(x=wx - 110, y=GROUND, s=0.88, walk=(ph + 0.5) if walking else None, mouth=mM, blink=bl(2), emo=eM('neutral'), look=1)
+        marT = A(x=wx - 110, y=GROUND, s=0.88, walk=(ph + 0.5) if walking else None, mouth=mM, talk=tM, blink=bl(2), emo=eM('neutral'), look=1)
         lay = C.kid(marT, girl=True) + C.kid(aliT)
         if not walking: lay += sweat(wx + 150, GROUND - 470, t)
         return 'street', (camx, 1), lay, sun(1680, 170, t)
@@ -190,9 +199,9 @@ def scene(t):
         walking = lt < 2.4; ax = lerp(500, 980, lt / 2.4)
         lay = C.cat(A(x=1650, y=GROUND + 4, s=1.05, face=-1, pose='lie', eyes=0.55, tongue=1, mouth=mC))
         mt = speaking(t, 'MARYAM')
-        lay += C.kid(A(x=ax - 230, y=GROUND, s=0.88, walk=lt * 1.6 if walking else None, mouth=mM, blink=bl(2), look=1, emo=eM('surprised' if not walking else 'neutral'),
+        lay += C.kid(A(x=ax - 230, y=GROUND, s=0.88, walk=lt * 1.6 if walking else None, mouth=mM, talk=tM, blink=bl(2), look=1, emo=eM('surprised' if not walking else 'neutral'),
                        **({'arm_f': 95, 'el_f': 4, 'hand_f': 'point'} if mt else {})), girl=True)
-        lay += C.kid(A(x=ax, y=GROUND, s=1.0, walk=lt * 1.6 + 0.5 if walking else None, mouth=mA, blink=bl(1), look=1, emo=eA('sad' if not walking and lt > 4.5 else 'neutral'), tear=0))
+        lay += C.kid(A(x=ax, y=GROUND, s=1.0, walk=lt * 1.6 + 0.5 if walking else None, mouth=mA, talk=tA, blink=bl(1), look=1, emo=eA('sad' if not walking and lt > 4.5 else 'neutral'), tear=0))
         return 'park', (lerp(0, 380, lt / 3.0), 1), lay, sun(1680, 150, t, 60)
     if n == 'think':
         nb = beat(sh, 2); b0 = sh['t0'] + nb['t'] - sh['t0']
@@ -200,7 +209,7 @@ def scene(t):
         remembering = lt > (beat(sh, 1)['t'] - sh['t0'])
         lay = C.cat(A(x=1650, y=GROUND + 4, s=1.05, face=-1, pose='lie', eyes=0.55, tongue=1))
         lay += C.kid(A(x=760, y=GROUND, s=0.88, blink=bl(2), look=1, emo='worried'), girl=True)
-        lay += C.kid(A(x=1010, y=GROUND, s=1.0, mouth=mA, blink=bl(1), arm_f=88, el_f=40, hold='bottle', hold_tilt=0,
+        lay += C.kid(A(x=1010, y=GROUND, s=1.0, mouth=mA, talk=tA, blink=bl(1), arm_f=88, el_f=40, hold='bottle', hold_tilt=0,
                        emo=('thinking' if remembering and not bubble else ('warm' if bubble else eA('worried'))), look=(-1 if lt < 4 else 1), head=(-6 if remembering else 0)))
         cam = (lerp(380, 400, lt / 2.5), lerp(1.0, 1.25, lt / 2.5))
         if bubble:
@@ -208,7 +217,7 @@ def scene(t):
             over = (f'<g opacity="{k:.2f}"><circle cx="1180" cy="560" r="16" fill="#fff" stroke="#3b2a20" stroke-width="5"/><circle cx="1240" cy="480" r="26" fill="#fff" stroke="#3b2a20" stroke-width="5"/>'
                     f'<ellipse cx="1500" cy="290" rx="330" ry="230" fill="#fffbea" stroke="#3b2a20" stroke-width="7"/>'
                     f'<clipPath id="bub"><ellipse cx="1500" cy="290" rx="320" ry="220"/></clipPath><g clip-path="url(#bub)"><rect x="1170" y="60" width="660" height="460" fill="#fff4d6"/>'
-                    + C.nana(A(x=1500, y=880, s=1.12, mouth=mN, blink=bl(3), emo='warm')) + '</g></g>')
+                    + C.nana(A(x=1500, y=880, s=1.12, mouth=mN, talk=tN, blink=bl(3), emo='warm')) + '</g></g>')
         return 'park', cam, lay, over
     if n == 'pour':
         b0 = beat(sh, 0); lapb = beat(sh, 1); t_lap = lapb['t'] - sh['t0']; t_end = t_lap + lapb['d']
@@ -218,9 +227,9 @@ def scene(t):
         lay = f'<ellipse cx="1430" cy="{GROUND+6}" rx="56" ry="16" fill="#4aa8e0" stroke="#3b2a20" stroke-width="5"/><ellipse cx="1430" cy="{GROUND}" rx="44" ry="9" fill="#9fd6f5"/>'
         catpose = 'drink' if drink else ('sit' if lt > 1.2 else 'lie')
         lay += C.cat(A(x=1560 if catpose != 'lie' else 1650, y=GROUND + 4, s=1.05, face=-1, pose=catpose, eyes=(0.55 if lt < 1.2 else (0.9 if purr else 0)), tongue=lt < 1.2, mouth=mC, happy=happyC or purr))
-        lay += C.kid(A(x=930, y=GROUND, s=0.88, blink=bl(2), look=1, mouth=mM, emo=('laugh' if laughing else ('happy' if happyC else 'neutral')),
+        lay += C.kid(A(x=930, y=GROUND, s=0.88, blink=bl(2), look=1, mouth=mM, talk=tM, emo=('laugh' if laughing else ('happy' if happyC else 'neutral')),
                        **({'arm_f': 140, 'el_f': 40, 'arm_b': 140, 'el_b': 40, 'hand_f': 'open', 'hand_b': 'open'} if laughing else {})), girl=True)
-        lay += C.kid(A(x=1240, y=GROUND, s=1.0, mouth=mA, blink=bl(1), arm_f=(80 if pouring else 30), el_f=(10 if pouring else 30), hold='bottle', hold_tilt=(115 if pouring else 0),
+        lay += C.kid(A(x=1240, y=GROUND, s=1.0, mouth=mA, talk=tA, blink=bl(1), arm_f=(80 if pouring else 30), el_f=(10 if pouring else 30), hold='bottle', hold_tilt=(115 if pouring else 0),
                        tilt=(10 if pouring else 0), look=1, emo=('happy' if happyC or pouring else eA('happy'))))
         if pouring: lay += f'<path d="M1418,{GROUND-120} Q1428,{GROUND-50} 1430,{GROUND-4}" fill="none" stroke="#4aa8e0" stroke-width="12" stroke-linecap="round" opacity=".85"/>'
         if happyC:
@@ -232,7 +241,7 @@ def scene(t):
         kx = lerp(1100, 1750, lt / 3.5) if not turned else 1100 + 650 * ease((hey['t'] - sh['t0'] - 0.1) / 3.5)
         walking = not turned
         lay = C.kid(A(x=kx - 220, y=GROUND, s=0.88, walk=lt * 1.6 if walking else None, blink=bl(2), face=(1 if walking else -1), emo=('laugh' if turned else 'happy')), girl=True)
-        lay += C.kid(A(x=kx, y=GROUND, s=1.0, walk=lt * 1.6 + .5 if walking else None, blink=bl(1), mouth=mA, face=(1 if walking else -1), emo=eA('happy'),
+        lay += C.kid(A(x=kx, y=GROUND, s=1.0, walk=lt * 1.6 + .5 if walking else None, blink=bl(1), mouth=mA, talk=tA, face=(1 if walking else -1), emo=eA('happy'),
                        **({'arm_f': 125, 'el_f': 15, 'hand_f': 'point'} if turned else {})))
         cxp = kx - 470 + (0 if walking else 40 * abs(math.sin(t * 5)))
         hop = 0 if walking else -abs(math.sin(t * 6)) * 40
@@ -242,10 +251,10 @@ def scene(t):
         ent = 2.0; kx = lerp(-150, 560, lt / ent); walking = lt < ent
         laugh = sfx_on(sh, t, 'laugh', 1.6) or (speaking(t, 'NANA') and emo_of(t, 'NANA') == 'laugh')
         nt = speaking(t, 'NANA')
-        lay = C.nana(A(x=1310, y=GROUND - 40, s=0.95, face=-1, mouth=mN, blink=bl(3), emo=('laugh' if laugh else eN('happy'))))
+        lay = C.nana(A(x=1310, y=GROUND - 40, s=0.95, face=-1, mouth=mN, talk=tN, blink=bl(3), emo=('laugh' if laugh else eN('happy'))))
         lay += C.cat(A(x=kx - 330 if walking else 720, y=GROUND + 4, s=0.95, pose='walk' if walking else 'sit', walk=lt * 2.2, happy=1, mouth=mC))
-        lay += C.kid(A(x=kx - 150, y=GROUND, s=0.88, walk=lt * 1.6 if walking else None, mouth=mM, blink=bl(2), emo=('laugh' if laugh else eM('happy')), look=1), girl=True)
-        lay += C.kid(A(x=kx + 110, y=GROUND, s=1.0, walk=lt * 1.6 + .5 if walking else None, mouth=mA, blink=bl(1), look=1,
+        lay += C.kid(A(x=kx - 150, y=GROUND, s=0.88, walk=lt * 1.6 if walking else None, mouth=mM, talk=tM, blink=bl(2), emo=('laugh' if laugh else eM('happy')), look=1), girl=True)
+        lay += C.kid(A(x=kx + 110, y=GROUND, s=1.0, walk=lt * 1.6 + .5 if walking else None, mouth=mA, talk=tA, blink=bl(1), look=1,
                        emo=('laugh' if laugh else ('proud' if nt and emo_of(t, 'NANA') == 'proud' else eA('happy')))))
         if laugh:
             for i in range(4):
