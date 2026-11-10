@@ -182,10 +182,11 @@ def scene(t):
         push2 = (not quiet) and len(beats) > 2 and t >= beats[2]['t'] + 0.4
         wob = lambda ph: (math.sin(t * 7 + ph) if push2 else 0)
         giggle = (not quiet) and (push1 and (active(t, sh, 'sfx', 'kids_giggle', 0.6) is not None or push2))
-        lay = C.nana(A(x=1400, y=GROUND - 6, s=0.92, pose='qiyam', expr='neutral', blink=bl(5), look_y=0.7))
-        base = (720, 940, 1160)
+        lay = ''
+        base = (760, 884, 1008)
+        nanaRow = C.nana(A(x=1150, y=GROUND - 6, s=0.92, pose='qiyam', expr='neutral', blink=bl(5), look_y=0.9))
         for i, (w, fn) in enumerate(KIDS):
-            st = A(x=base[i], y=GROUND, s=0.9, pose='qiyam', blink=bl(i), expr='neutral', look_y=0.7)
+            st = A(x=base[i], y=GROUND, s=0.9, pose='qiyam', blink=bl(i), expr='neutral', look_y=0.9)
             if not quiet:
                 if w == 'BILAL' and push1:
                     ph = (t * 2.2) % 1
@@ -196,8 +197,8 @@ def scene(t):
                 if w == 'ZAID' and push2:
                     st.update(expr='laugh', x=base[i] + 14 * wob(2), head_tilt=6 * math.sin(t * 9), bob=-5 * abs(math.sin(t * 9)))
                 if giggle and w in ('ALI', 'BILAL'): st['bob'] = st.get('bob', 0) - 4 * abs(math.sin(t * 10 + i))
-            lay = fn(st) + lay if False else lay + fn(st)
-        if quiet and lt > D - 1.8: pass
+            lay += fn(st)
+        lay += nanaRow
         cam = (0, lerp(1.0, 1.08, lt / D))
         return 'hall', cam, lay, '', texts
 
@@ -278,20 +279,28 @@ def scene(t):
         idx = steps.index(n)
         pose = {0: 'stand', 1: 'stand', 2: 'takbir', 3: 'qiyam', 4: 'ruku', 5: 'sajda', 6: 'sit'}[idx]
         trans = ease(lt / 0.7)
-        xs = (230, 630, 1020, 1410)
+        tight = (640, 790, 914, 1038)                  # shoulder to shoulder, foot to foot
         lay = ''
-        nanaT = A(x=xs[0], y=GROUND, s=0.92, pose=pose, blink=bl(5), talk=m['NANA'], expr='warm', look_y=(0.8 if idx >= 1 else 0))
-        if idx == 0: nanaT.update(arm_f=60 + 30 * math.sin(t * 2) if m['NANA'] > 0.05 else 10, elb_f=30, hand_f='open', face=1)
-        lay += C.nana(nanaT)
-        for i, (w, fn) in enumerate(KIDS):
-            x = xs[i + 1]
-            if idx == 0:   # shuffle into a straight row
-                x = lerp(xs[i + 1] + (60, 160, 280)[i], xs[i + 1], (lt - 1.2) / 2.0)
-            st = A(x=x, y=GROUND + (0 if idx else (24, -18, 30)[i] * (1 - ease((lt - 1.2) / 2.0))), s=0.88, pose=pose, blink=bl(i), talk=m[w],
-                   expr='happy' if idx == 6 else 'neutral', look_y=(0.8 if idx >= 1 else 0), walk=(t * 1.6 if idx == 0 and 1.2 < lt < 3.2 else None))
-            if pose == 'stand' and idx == 0: st['face'] = 1
-            if active(t, sh, 'say', w): st['expr'] = 'excited' if w == 'ZAID' else 'happy'
-            lay += fn(st)
+        if pose in ('ruku', 'sajda'):
+            # side view of the same row: the far people are a little higher and to the right
+            order = [(5, C.nana, 'NANA'), (2, C.zaid, 'ZAID'), (1, C.bilal, 'BILAL'), (0, C.ali, 'ALI')]
+            for k, (rank, fn, w) in enumerate(order):
+                d = 3 - k
+                st = A(x=620 + d * 150, y=GROUND - d * 52, s=(0.92 if w == 'NANA' else 0.88) * (1 - d * 0.04), pose=pose, blink=bl(rank), talk=m[w], expr='neutral')
+                lay += fn(st)
+        else:
+            nanaT = A(x=tight[0], y=GROUND, s=0.92, pose=pose, blink=bl(5), talk=m['NANA'], expr='warm', look_y=(0.9 if idx >= 1 else 0))
+            if idx == 0: nanaT.update(arm_f=60 + 30 * math.sin(t * 2) if m['NANA'] > 0.05 else 10, elb_f=30, hand_f='open', face=1)
+            lay += C.nana(nanaT)
+            for i, (w, fn) in enumerate(KIDS):
+                x = tight[i + 1]
+                if idx == 0:   # start spread out, then shuffle in until shoulders touch
+                    x = lerp(tight[i + 1] + (90, 210, 360)[i], tight[i + 1], (lt - 1.2) / 2.0)
+                st = A(x=x, y=GROUND + (0 if idx else (24, -18, 30)[i] * (1 - ease((lt - 1.2) / 2.0))), s=0.88, pose=pose, blink=bl(i), talk=m[w],
+                       expr='happy' if idx == 6 else 'neutral', look_y=(0.9 if (idx >= 1 or lt > 3.4) else 0), walk=(t * 1.6 if idx == 0 and 1.2 < lt < 3.2 else None))
+                if pose == 'stand' and idx == 0: st['face'] = 1
+                if active(t, sh, 'say', w): st.update(expr='excited' if w == 'ZAID' else 'happy', look_y=0)
+                lay += fn(st)
         # step label card
         k = ease(lt / 0.5)
         over = f'<g opacity="{k}"><rect x="60" y="60" width="760" height="110" rx="30" fill="#fffbea" stroke="#3b2a20" stroke-width="7"/></g>' + tick(1780, 120, k)
