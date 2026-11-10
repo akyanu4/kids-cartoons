@@ -18,3 +18,10 @@ Font: Noto Nastaliq Urdu (github.com/notofonts/nastaliq releases) in ~/.fonts, o
 Run: python3 voices_ur.py && python3 render_ur.py frames 5,30,60 && python3 render_ur.py video 2
 Output: build_ur/ali_aur_pyasi_billi_urdu.mp4. Nastaliq text can't go through cairosvg (no shaping), so all Urdu text is drawn with PIL.
 Captions: story_ur.CAPTIONS = "roman" (Roman Urdu captions and name tags, Poppins) or "urdu" (Nastaliq). Cards stay in Urdu; the title card adds the Roman title.
+
+## Episode 2: "Masjid ke Adaab" (مسجد کے آداب, 2:53) — Iqra-LetsLearn
+Kids push and giggle in jamaat; Nana Jaan acts out distracting habits ("Kya yeh sahi tareeqa hai?" "Nahin!"), then teaches
+the right way step by step (saff, nazar, takbeer, qiyaam, ruku, sajda, jalsa). New: Bilal and Zaid (chars2.bilal/zaid),
+salah poses in chars2.apply_pose (pose='takbir'|'qiyam'|'ruku'|'sajda'|'sit'), masjid hall background, group "Nahin!".
+Run: python3 masjid_voices.py && python3 masjid_render.py frames 10,60,130 && python3 masjid_render.py video 2
+Output: build_masjid/masjid_ke_adaab.mp4 (Roman Urdu captions).

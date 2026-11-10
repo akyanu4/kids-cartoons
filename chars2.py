@@ -50,8 +50,13 @@ def ex(name):
     e = dict(EXPR['neutral']); e.update(EXPR.get(name or 'neutral', {})); return e
 
 
+_UID = 0
+
+
 def face(r, st, kind):
     """Face features centred on (0,0) of a head of radius r. kind: 'ali' | 'maryam' | 'nana'."""
+    global _UID
+    _UID += 1; u = _UID
     e = ex(st.get('expr')); talk = st.get('talk', 0); blink = st.get('blink', 0)
     look = st.get('look', 0.35); look_y = st.get('look_y', e.get('look_y', 0))
     fx = r * 0.14                    # features turned a little toward the facing side
@@ -70,7 +75,7 @@ def face(r, st, kind):
             if kind == 'maryam':
                 s += f'<path d="M{cx+wq*.7},{ey-2} l{wq*.35},{-r*.06} M{cx+wq*.95},{ey+2} l{wq*.4},{-r*.02}" {SW(3)}/>'
         else:
-            h = eh * openv; cid = f'e{kind}{sx}'
+            h = eh * openv; cid = f'e{kind}{sx}_{u}'
             top = ey - h; bot = ey + h * (1 - 0.55 * e['squint'])
             eye = f'M{cx-wq},{ey} Q{cx-wq*.6},{top} {cx},{top} Q{cx+wq*.6},{top} {cx+wq},{ey} Q{cx+wq*.5},{bot} {cx},{bot} Q{cx-wq*.5},{bot} {cx-wq},{ey}Z'
             ix = cx + look * wq * 0.42; iy = ey + look_y * h * 0.35 + h * 0.08
@@ -119,7 +124,7 @@ def face(r, st, kind):
         corner = my - c * r * 0.07
         bot = my + h + c * r * .05
         d = f'M{fx-mw},{corner} Q{fx},{top} {fx+mw},{corner} Q{fx+mw*.6},{bot} {fx},{bot} Q{fx-mw*.6},{bot} {fx-mw},{corner}Z'
-        cid = f'm{kind}'
+        cid = f'm{kind}_{u}'
         s += f'<clipPath id="{cid}"><path d="{d}"/></clipPath><path d="{d}" fill="#6e1f2a"/>'
         s += f'<g clip-path="url(#{cid})"><rect x="{fx-mw}" y="{top-4}" width="{2*mw}" height="{r*.07}" fill="#fff"/><ellipse cx="{fx}" cy="{bot}" rx="{mw*.6}" ry="{h*.38}" fill="#e2727c"/></g>'
         s += f'<path d="{d}" fill="none" {SW(4)}/>'
@@ -248,18 +253,69 @@ def _arms_state(st, swing_a, holding_front):
 def _shoulder_lift(a): return -max(0, (a - 80)) / 100 * 10
 
 
-def ali(st):
-    x, y, s, f = st['x'], st['y'], st.get('s', 1), st.get('face', 1)
-    lA, kA, lB, kB, sw, bob = gait(st)
+
+def hair(style, hy):
+    H = '#1c1714'
+    if style == 'spiky':
+        d = (f'M-72,{hy-14} L-80,{hy-34} L-66,{hy-30} L-70,{hy-54} L-54,{hy-42} L-50,{hy-62} L-36,{hy-46} L-26,{hy-60} L-18,{hy-42} '
+             f'L-6,{hy-58} L4,{hy-40} L16,{hy-56} L24,{hy-40} L38,{hy-54} L42,{hy-38} L58,{hy-50} L56,{hy-32} L74,{hy-38} L70,{hy-14} '
+             f'Q60,{hy-30} 46,{hy-26} Q20,{hy-38} 0,{hy-30} Q-24,{hy-38} -46,{hy-26} Q-62,{hy-30} -72,{hy-14}Z')
+        return (f'<path d="{d}" fill="{H}" {SW(4)}/>'
+                f'<path d="M-66,{hy-18} L-74,{hy+6} L-62,{hy-2}Z M66,{hy-18} L74,{hy+4} L62,{hy-2}Z" fill="{H}" {SW(3)}/>')
+    if style == 'curly':
+        s = f'<path d="M-72,{hy-10} Q-76,{hy-60} 0,{hy-64} Q76,{hy-60} 72,{hy-10} Q40,{hy-36} 0,{hy-34} Q-40,{hy-36} -72,{hy-10}Z" fill="{H}" {SW(4)}/>'
+        for i in range(9):
+            cx = -64 + i * 16; cy = hy - 30 - 8 * math.sin(i / 8 * math.pi)
+            s += f'<circle cx="{cx}" cy="{cy}" r="11" fill="{H}" stroke="{INK}" stroke-width="3"/>'
+        return s
+    # 'flat': smooth side-swept fringe
+    return (f'<path d="M-72,{hy-6} Q-78,{hy-62} 0,{hy-66} Q78,{hy-62} 72,{hy-6} Q66,{hy-30} 40,{hy-30} Q10,{hy-24} -20,{hy-40} Q-50,{hy-30} -72,{hy-6}Z" fill="#3a2516" {SW(4)}/>'
+            f'<path d="M-30,{hy-52} Q10,{hy-40} 50,{hy-50}" fill="none" stroke="#5a3b26" stroke-width="4"/>')
+
+
+DIMS = {'kid': (150, 70), 'girl': (140, 66), 'nana': (175, 84)}
+
+
+def apply_pose(st, kind):
+    """Salah and sitting positions. Sets arms, lean, legs and how far the body drops."""
+    p = st.get('pose')
+    if not p or p == 'stand': return st
+    hip, thigh = DIMS[kind]
+    q = dict(st)
+    def put(**k):
+        for kk, v in k.items(): q.setdefault(kk, v)
+    if p == 'takbir':
+        put(arm_f=38, elb_f=122, hand_f='open', arm_b=-28, elb_b=-150, hand_b='open')
+    elif p == 'qiyam':
+        put(arm_f=22, elb_f=-112, hand_f='relax', arm_b=24, elb_b=85, hand_b='relax')
+    elif p == 'ruku':
+        put(lean=84, arm_f=24, elb_f=-6, hand_f='relax', arm_b=26, elb_b=-6, hand_b='relax', look_y=0.8)
+    elif p == 'sajda':
+        q['legs'] = (0, 92, 0, 92, 0, 0); q['drop'] = hip - thigh - 24
+        put(lean=103, arm_f=163, elb_f=30, hand_f='open', arm_b=160, elb_b=32, hand_b='open', look_y=0.6, expr='neutral')
+    elif p == 'sit':
+        q['legs'] = (88, 172, 84, 172, 0, 0); q['drop'] = hip - 36
+        put(arm_f=50, elb_f=-38, hand_f='relax', arm_b=52, elb_b=-38, hand_b='relax')
+    return q
+
+
+ALI_LOOK = dict(shirt='#D52B31', pants='#3d4f75', shoe='#f2f2f2', skin=ALI_SKIN, hair='spiky', cap='#fbfbf7', kind='ali')
+
+
+def ali(st, look=None):
+    L = dict(ALI_LOOK); L.update(look or {})
+    st = apply_pose(st, 'kid')
+    x, y, s, f = st['x'], st['y'] + st.get('drop', 0) * st.get('s', 1), st.get('s', 1), st.get('face', 1)
+    lA, kA, lB, kB, sw, bob = st['legs'] if 'legs' in st else gait(st)
     bob += st.get('bob', 0)
     lean = st.get('lean', 0) + (4 if st.get('walk') is not None else 0)
     af, ebf, ab, ebb = _arms_state(st, sw, st.get('hold'))
-    RED, PANTS, SHOE = '#D52B31', '#3d4f75', '#f2f2f2'
+    RED, PANTS, SHOE, ALI_SKIN_ = L['shirt'], L['pants'], L['shoe'], L['skin']
     g = f'<g transform="translate({x},{y + bob*s}) scale({s*f},{s})">'
     # legs (hip at -150)
-    g += leg(-15, -150, lB, kB, 70, 68, 36, PANTS, '#d9d9d9', back=True)
+    g += leg(-15, -150, lB, kB, 70, 68, 36, PANTS, shade(SHOE,.88), back=True)
     g += f'<g transform="rotate({lean},0,-150)">'
-    g += arm(-40, -280 + _shoulder_lift(ab), ab, ebb, 60, 56, 27, RED, .45, ALI_SKIN, st.get('hand_b', 'relax'), back=True)
+    g += arm(-40, -280 + _shoulder_lift(ab), ab, ebb, 60, 56, 27, RED, .45, ALI_SKIN_, st.get('hand_b', 'relax'), back=True)
     g += '</g>'
     g += leg(15, -150, lA, kA, 70, 68, 36, PANTS, SHOE)
     g += f'<g transform="rotate({lean},0,-150)">'
@@ -270,29 +326,24 @@ def ali(st):
     g += f'<path d="M30,-230 Q50,-200 46,-150" fill="none" stroke="{shade(RED,.8)}" stroke-width="4" opacity=".6"/>'
     # neck + head
     hy = -366
-    g += f'<rect x="-15" y="-312" width="30" height="24" fill="{shade(ALI_SKIN,.88)}"/>'
+    g += f'<rect x="-15" y="-312" width="30" height="24" fill="{shade(ALI_SKIN_,.88)}"/>'
     g += f'<g transform="rotate({st.get("head_tilt",0)},0,-300)">'
-    g += f'<ellipse cx="-70" cy="{hy+8}" rx="15" ry="19" fill="{shade(ALI_SKIN,.94)}" {SW(4)}/>'
-    g += f'<ellipse cx="74" cy="{hy+8}" rx="13" ry="18" fill="{ALI_SKIN}" {SW(4)}/>'
+    g += f'<ellipse cx="-70" cy="{hy+8}" rx="15" ry="19" fill="{shade(ALI_SKIN_,.94)}" {SW(4)}/>'
+    g += f'<ellipse cx="74" cy="{hy+8}" rx="13" ry="18" fill="{ALI_SKIN_}" {SW(4)}/>'
     # round face, full cheeks
-    g += f'<path d="M-70,{hy-20} Q-74,{hy+50} -38,{hy+70} Q0,{hy+86} 40,{hy+70} Q76,{hy+50} 72,{hy-20} Q66,{hy-80} 0,{hy-82} Q-64,{hy-80} -70,{hy-20}Z" fill="{ALI_SKIN}" {SW()}/>'
-    g += f'<path d="M-62,{hy+20} Q-60,{hy+56} -30,{hy+70}" fill="none" stroke="{shade(ALI_SKIN,.85)}" stroke-width="10" opacity=".5"/>'
+    g += f'<path d="M-70,{hy-20} Q-74,{hy+50} -38,{hy+70} Q0,{hy+86} 40,{hy+70} Q76,{hy+50} 72,{hy-20} Q66,{hy-80} 0,{hy-82} Q-64,{hy-80} -70,{hy-20}Z" fill="{ALI_SKIN_}" {SW()}/>'
+    g += f'<path d="M-62,{hy+20} Q-60,{hy+56} -30,{hy+70}" fill="none" stroke="{shade(ALI_SKIN_,.85)}" stroke-width="10" opacity=".5"/>'
     # spiky black hair below the topi (sides + short fringe spikes)
-    H = '#1c1714'
-    spikes = (f'M-72,{hy-14} L-80,{hy-34} L-66,{hy-30} L-70,{hy-54} L-54,{hy-42} L-50,{hy-62} L-36,{hy-46} L-26,{hy-60} L-18,{hy-42} '
-              f'L-6,{hy-58} L4,{hy-40} L16,{hy-56} L24,{hy-40} L38,{hy-54} L42,{hy-38} L58,{hy-50} L56,{hy-32} L74,{hy-38} L70,{hy-14} '
-              f'Q60,{hy-30} 46,{hy-26} Q20,{hy-38} 0,{hy-30} Q-24,{hy-38} -46,{hy-26} Q-62,{hy-30} -72,{hy-14}Z')
-    g += f'<path d="{spikes}" fill="{H}" {SW(4)}/>'
-    g += f'<path d="M-66,{hy-18} L-74,{hy+6} L-62,{hy-2}Z M66,{hy-18} L74,{hy+4} L62,{hy-2}Z" fill="{H}" {SW(3)}/>'
+    g += hair(L['hair'], hy)
     # white topi (round cap) on top
-    g += f'<path d="M-60,{hy-50} Q-58,{hy-108} 0,{hy-112} Q58,{hy-108} 60,{hy-50} Q0,{hy-64} -60,{hy-50}Z" fill="#fbfbf7" {SW()}/>'
+    g += f'<path d="M-60,{hy-50} Q-58,{hy-108} 0,{hy-112} Q58,{hy-108} 60,{hy-50} Q0,{hy-64} -60,{hy-50}Z" fill="{L['cap']}" {SW()}/>'
     g += f'<path d="M-56,{hy-60} Q0,{hy-74} 56,{hy-60}" fill="none" stroke="#d8d4c4" stroke-width="4"/>'
     for i in range(-3, 4):
         g += f'<path d="M{i*15},{hy-108+abs(i)*2} L{i*17},{hy-70}" stroke="#e3dfd0" stroke-width="2"/>'
-    g += f'<g transform="translate(0,{hy+6})">' + face(70, st, 'ali') + '</g>'
+    g += f'<g transform="translate(0,{hy+6})">' + face(70, st, L['kind']) + '</g>'
     g += '</g>'
     # front arm
-    g += arm(42, -280 + _shoulder_lift(af), af, ebf, 60, 56, 27, RED, .45, ALI_SKIN, st.get('hand_f', 'relax'),
+    g += arm(42, -280 + _shoulder_lift(af), af, ebf, 60, 56, 27, RED, .45, ALI_SKIN_, st.get('hand_f', 'relax'),
              holding=st.get('hold'), hold_tilt=st.get('hold_tilt', 0))
     g += f'<ellipse cx="38" cy="{-276 + _shoulder_lift(af)}" rx="18" ry="16" fill="{RED}"/>'
     g += '</g></g>'
@@ -300,8 +351,9 @@ def ali(st):
 
 
 def maryam(st):
-    x, y, s, f = st['x'], st['y'], st.get('s', 1), st.get('face', 1)
-    lA, kA, lB, kB, sw, bob = gait(st, 20)
+    st = apply_pose(st, 'girl')
+    x, y, s, f = st['x'], st['y'] + st.get('drop', 0) * st.get('s', 1), st.get('s', 1), st.get('face', 1)
+    lA, kA, lB, kB, sw, bob = st['legs'] if 'legs' in st else gait(st, 20)
     bob += st.get('bob', 0)
     lean = st.get('lean', 0) + (3 if st.get('walk') is not None else 0)
     af, ebf, ab, ebb = _arms_state(st, sw, None)
@@ -329,8 +381,9 @@ def maryam(st):
 
 
 def nana(st):
-    x, y, s, f = st['x'], st['y'], st.get('s', 1), st.get('face', 1)
-    lA, kA, lB, kB, sw, bob = gait(st, 16)
+    st = apply_pose(st, 'nana')
+    x, y, s, f = st['x'], st['y'] + st.get('drop', 0) * st.get('s', 1), st.get('s', 1), st.get('face', 1)
+    lA, kA, lB, kB, sw, bob = st['legs'] if 'legs' in st else gait(st, 16)
     bob += st.get('bob', 0)
     lean = st.get('lean', 0) + (2 if st.get('walk') is not None else 0)
     af, ebf, ab, ebb = _arms_state(st, sw, None)
@@ -379,6 +432,14 @@ def nana(st):
     g += f'<ellipse cx="47" cy="{-386 + _shoulder_lift(af)}" rx="20" ry="18" fill="{KURTA}"/>'
     g += '</g></g>'
     return g
+
+
+BILAL_LOOK = dict(shirt='#3f8fd2', pants='#e9e4d6', shoe='#6b4a30', skin='#B9825C', hair='curly', cap='#fbfbf7', kind='ali')
+ZAID_LOOK = dict(shirt='#2f9e5b', pants='#4a4a52', shoe='#2b2b2b', skin='#F0C8A4', hair='flat', cap='#d9d4c8', kind='ali')
+
+
+def bilal(st): return ali(st, BILAL_LOOK)
+def zaid(st): return ali(st, ZAID_LOOK)
 
 
 def kid(st, girl=False):
