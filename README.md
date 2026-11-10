@@ -16,3 +16,4 @@ elbows/knees, expressions), render_ur.py (Nastaliq captions and cards via PIL+ra
 Font: Noto Nastaliq Urdu (github.com/notofonts/nastaliq releases) in ~/.fonts, or set URDU_FONT / URDU_FONT_BOLD.
 Run: python3 voices_ur.py && python3 render_ur.py frames 5,30,60 && python3 render_ur.py video 2
 Output: build_ur/ali_aur_pyasi_billi_urdu.mp4. Nastaliq text can't go through cairosvg (no shaping), so all Urdu text is drawn with PIL.
+Captions: story_ur.CAPTIONS = "roman" (Roman Urdu captions and name tags, Poppins) or "urdu" (Nastaliq). Cards stay in Urdu; the title card adds the Roman title.

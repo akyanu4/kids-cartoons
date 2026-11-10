@@ -100,3 +100,38 @@ SHOTS = [
                ("wait", 1.8)]),
     ("end", [("wait", 5.0)]),
 ]
+
+# Roman Urdu captions (shown on screen instead of Nastaliq when CAPTIONS = 'roman'), keyed by the Urdu line.
+CAPTIONS = 'roman'
+ROMAN_NAMES = {'ALI': 'Ali', 'MARYAM': 'Maryam', 'NANA': 'Nana'}
+ROMAN = {
+    "علی اور پیاسی بلی": "Ali aur Pyaasi Billi",
+    "گرمیوں کا ایک بہت گرم دن تھا۔ سورج خوب چمک رہا تھا، اور سب سائے کی تلاش میں تھے۔":
+        "Garmiyon ka ek bohat garam din tha. Suraj khoob chamak raha tha, aur sab saaye ki talaash mein thay.",
+    "علی اور اس کی چھوٹی بہن مریم اسکول سے گھر جا رہے تھے۔": "Ali aur us ki chhoti behen Maryam school se ghar ja rahe thay.",
+    "اُف! آج تو بہت گرمی ہے، مریم!": "Uff! Aaj to bohat garmi hai, Maryam!",
+    "میں تو گھر جا کر لیموں کا ٹھنڈا ٹھنڈا شربت پیوں گی!": "Main to ghar ja kar leemoon ka thanda thanda sharbat piyoongi!",
+    "علی، دیکھو! درخت کے نیچے ایک ننھی سی بلی!": "Ali, dekho! Darakht ke neeche ek nanhi si billi!",
+    "یہ تو بہت تھکی ہوئی لگ رہی ہے۔ شاید اسے بہت پیاس لگی ہے۔ بیچاری بلی!":
+        "Yeh to bohat thaki hui lag rahi hai. Shayad isay bohat pyaas lagi hai. Bechaari billi!",
+    "لیکن... میری بوتل میں تو بس آخری تھوڑا سا پانی ہے۔": "Lekin... meri bottle mein to bas aakhri thora sa paani hai.",
+    "علی کو بھی پیاس لگی تھی۔ پھر اسے یاد آیا کہ نانا ہمیشہ کیا کہتے ہیں۔":
+        "Ali ko bhi pyaas lagi thi. Phir usay yaad aaya ke Nana hamesha kya kehte hain.",
+    "سب کے ساتھ مہربانی کرو، جانوروں کے ساتھ بھی۔ اللہ مہربان ہے، اور وہ مہربانی کو پسند کرتا ہے۔":
+        "Sab ke saath meherbani karo, jaanwaron ke saath bhi. Allah meherbaan hai, aur woh meherbani ko pasand karta hai.",
+    "یہ لو ننھی بلی، پانی پی لو!": "Yeh lo nanhi billi, paani pee lo!",
+    "ننھی بلی پانی پیتی رہی، پیتی رہی، یہاں تک کہ اس کی پیاس بجھ گئی۔":
+        "Nanhi billi paani peeti rahi, peeti rahi, yahan tak ke us ki pyaas bujh gayi.",
+    "ہی ہی! یہ شکریہ کہہ رہی ہے، علی!": "Hee hee! Yeh shukriya keh rahi hai, Ali!",
+    "اور پتا ہے کیا ہوا؟ ننھی بلی ان کے ساتھ ساتھ چل پڑی!": "Aur pata hai kya hua? Nanhi billi un ke saath saath chal pari!",
+    "ارے! تم کہاں چلیں، بلی؟": "Arey! Tum kahan chalein, billi?",
+    "السلام علیکم، میرے بچو! اور یہ ننھا مہمان کون ہے؟": "Assalamu alaikum, mere bachcho! Aur yeh nanha mehmaan kaun hai?",
+    "وعلیکم السلام، نانا! اسے بہت پیاس لگی تھی، تو میں نے اسے اپنا پانی دے دیا۔":
+        "Wa alaikum assalam, Nana! Isay bohat pyaas lagi thi, to main ne isay apna paani de diya.",
+    "ماشاءاللہ، علی! مجھے تم پر فخر ہے۔ ہمارے پیارے نبی ﷺ نے سکھایا کہ ہر جاندار پر مہربانی کرنے کا اجر ہے۔":
+        "MashaAllah, Ali! Mujhe tum par fakhr hai. Hamare pyaare Nabi (sallallahu alaihi wasallam) ne sikhaaya ke har jaandaar par meherbani karne ka ajr hai.",
+    "نانا، کیا ہم اسے رکھ لیں؟ اس کا نام لیمو رکھتے ہیں!": "Nana, kya hum isay rakh lein? Is ka naam Leemu rakhte hain!",
+    "ہا ہا ہا! ٹھیک ہے، لیمو ہی سہی!": "Ha ha ha! Theek hai, Leemu hi sahi!",
+    "ہر جاندار کے ساتھ مہربانی کرو۔ اللہ مہربان ہے، اور وہ مہربانی کو پسند کرتا ہے۔":
+        "Har jaandaar ke saath meherbani karo. Allah meherbaan hai, aur woh meherbani ko pasand karta hai.",
+}

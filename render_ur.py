@@ -144,7 +144,7 @@ def blink(t, seed): x = (t + seed * 1.37) % 3.6; return 1.0 if x < 0.12 else (0.
 def caption(t):
     for s in SHOTS:
         for b in s['beats']:
-            if b['kind'] == 'say' and b['t'] <= t < b['t'] + b['d'] + 0.15 and s['name'] not in ('title', 'moral'): return b['who'], b['text']
+            if b['kind'] == 'say' and b['t'] <= t < b['t'] + b['d'] + 0.15 and s['name'] not in ('title',) and (s['name'] != 'moral' or getattr(story, 'CAPTIONS', '') == 'roman'): return b['who'], b['text']
     return None
 
 def emo(t, who, default):
@@ -186,7 +186,8 @@ def scene(t):
         lay += C.cat(A(x=1330, y=GROUND, s=1.0, face=-1, pose='sit', happy=1, t=t))
         k = ease(lt / 0.8)
         over = card(320, 110, 1280, 270, k)
-        texts += [(story.TITLE, 960, 215, 104, '#2E8B57', k, True), (story.SUBTITLE, 960, 330, 44, '#c0396b', k, False)]
+        texts += [(story.TITLE, 960, 195, 100, '#2E8B57', k, True), (story.SUBTITLE, 960, 330, 44, '#c0396b', k, False)]
+        if getattr(story, 'CAPTIONS', '') == 'roman': texts[-1] = ('ROMAN:' + story.ROMAN[story.TITLE], 960, 335, 48, '#c0396b', k, True)
         return 'title', (0, 1), lay, over, texts
     if n == 'street':
         b1 = beat(sh, 1); stop = b1['t'] + b1['d'] - sh['t0'] + 0.2
@@ -349,27 +350,56 @@ def wrap(d, text, f, maxw):
         else: cur = tt
     lines.append(cur); return lines
 
+LFONT = '/usr/share/fonts/truetype/google-fonts/Poppins-SemiBold.ttf'
+LFONT_B = '/usr/share/fonts/truetype/google-fonts/Poppins-Bold.ttf'
+if not os.path.exists(LFONT): LFONT = LFONT_B
+_lf = {}
+def lfont(sz, bold=False):
+    k = (sz, bold)
+    if k not in _lf: _lf[k] = ImageFont.truetype(LFONT_B if bold else LFONT, sz)
+    return _lf[k]
+
 def draw_caption(im, cap):
-    who, text = cap; d = ImageDraw.Draw(im); f = font(44, False)
-    lines = wrap(d, text, f, 1500)
-    lh = 92; bh = lh * len(lines) + 30; y0 = H - bh - 18
-    bw = max(d.textlength(l, font=f, direction='rtl', language='ur') for l in lines) + 90
+    who, text = cap; d = ImageDraw.Draw(im)
+    roman = getattr(story, 'CAPTIONS', 'urdu') == 'roman'
+    if roman:
+        text = story.ROMAN.get(text, text); f = lfont(44); lh = 60; maxw = 1560
+        tl = lambda s_, f_: d.textlength(s_, font=f_)
+        words = text.split(); lines = []; cur = ''
+        for w_ in words:
+            tt = (cur + ' ' + w_).strip()
+            if tl(tt, f) > maxw and cur: lines.append(cur); cur = w_
+            else: cur = tt
+        lines.append(cur)
+    else:
+        f = font(44, False); lh = 92; lines = wrap(d, text, f, 1500)
+        tl = lambda s_, f_: d.textlength(s_, font=f_, direction='rtl', language='ur')
+    bh = lh * len(lines) + (34 if roman else 30); y0 = H - bh - 18
+    bw = max(tl(l, f) for l in lines) + 90
     d.rounded_rectangle([W / 2 - bw / 2, y0, W / 2 + bw / 2, y0 + bh], 26, fill=(255, 255, 255, 238), outline=(59, 42, 32), width=5)
-    nm = story.NAMES.get(who)
-    if nm:
-        nf = font(36, True); nw = d.textlength(nm, font=nf, direction='rtl', language='ur') + 64
-        xr = W / 2 + bw / 2 - 30
-        d.rounded_rectangle([xr - nw, y0 - 52, xr, y0 + 16], 24, fill=COLORS[who], outline=(59, 42, 32), width=4)
-        utext(d, (xr - nw / 2, y0 - 16), nm, nf, 'white', 'mm')
+    if who in COLORS:
+        if roman:
+            nm = story.ROMAN_NAMES[who]; nf = lfont(32, True); nw = d.textlength(nm, font=nf) + 44
+            xl = W / 2 - bw / 2 + 30
+            d.rounded_rectangle([xl, y0 - 34, xl + nw, y0 + 16], 20, fill=COLORS[who], outline=(59, 42, 32), width=4)
+            d.text((xl + nw / 2, y0 - 9), nm, font=nf, fill='white', anchor='mm')
+        else:
+            nm = story.NAMES[who]; nf = font(36, True); nw = tl(nm, nf) + 64
+            xr = W / 2 + bw / 2 - 30
+            d.rounded_rectangle([xr - nw, y0 - 52, xr, y0 + 16], 24, fill=COLORS[who], outline=(59, 42, 32), width=4)
+            utext(d, (xr - nw / 2, y0 - 16), nm, nf, 'white', 'mm')
     for i, l in enumerate(lines):
-        utext(d, (W / 2, y0 + 2 + i * lh), l, f, (40, 30, 24))
+        if roman: d.text((W / 2, y0 + 17 + i * lh), l, font=f, fill=(40, 30, 24), anchor='ma')
+        else: utext(d, (W / 2, y0 + 2 + i * lh), l, f, (40, 30, 24))
 
 def draw_texts(im, texts):
     if not texts: return im
     lay = Image.new('RGBA', (W, H), (0, 0, 0, 0)); d = ImageDraw.Draw(lay)
     op = 1
     for s, x, y, sz, col, o, b in texts:
-        utext(d, (x, y), s, font(sz, b), col, 'mm'); op = o
+        if s.startswith('ROMAN:'): d.text((x, y), s[6:], font=lfont(sz, b), fill=col, anchor='mm')
+        else: utext(d, (x, y), s, font(sz, b), col, 'mm')
+        op = o
     if op < 1:
         a = lay.getchannel('A').point(lambda v: int(v * op)); lay.putalpha(a)
     im.alpha_composite(lay); return im
