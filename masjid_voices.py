@@ -26,6 +26,39 @@ def mixdown(parts, out, offsets, vols):
     sf.write(out, y, SR); return out
 
 
+def _syll(who, txt):
+    """one short laugh syllable from this character's voice, silence trimmed"""
+    x, sr = sf.read(tts(who, txt, 'laugh'))
+    x = x if x.ndim == 1 else x.mean(1)
+    on = np.where(np.abs(x) > 0.04 * np.abs(x).max())[0]
+    x = x[on[0]:on[-1]] if len(on) else x
+    return x / (np.abs(x).max() + 1e-9)
+
+
+def _burst(x, pitch, length):
+    n = int(len(x) / pitch); y = np.interp(np.linspace(0, len(x) - 1, n), np.arange(len(x)), x)[:int(length * SR)]
+    k = len(y); env = np.minimum(1, np.arange(k) / (0.012 * SR)) * np.exp(-np.linspace(0, 5.0, k))
+    return y * env
+
+
+def giggle(who, seed, n=6, pitch=1.0, gap=0.145, syl='ही'):
+    """a natural giggle: quick uneven bursts, pitch going up then down, getting softer, a little breath in at the end"""
+    rng = np.random.default_rng(seed)
+    x = _syll(who, syl); out = np.zeros(int(SR * (n * gap * 1.4 + 0.8))); t = 0.02
+    for i in range(n):
+        shape = 1.06 + 0.06 * np.sin(i / max(1, n - 1) * np.pi) - 0.03 * i / n
+        b = _burst(x, pitch * shape * rng.uniform(0.97, 1.03), rng.uniform(0.09, 0.13))
+        a = int(t * SR); amp = (1 - 0.5 * i / n) * rng.uniform(0.85, 1.0)
+        out[a:a + len(b)] += amp * b
+        br = rng.normal(0, 1, int(0.05 * SR)); br = np.convolve(br, np.ones(25) / 25, 'same') * 0.012 * amp   # breath between bursts
+        out[a + len(b):a + len(b) + len(br)] += br[:max(0, len(out) - a - len(b))]
+        t += gap * rng.uniform(0.85, 1.15) * (1 + 0.06 * i)
+    inh = rng.normal(0, 1, int(0.32 * SR)); inh = np.convolve(inh, np.ones(18) / 18, 'same') * np.linspace(0, 0.03, len(inh))
+    a = int((t + 0.05) * SR); out[a:a + len(inh)] += inh[:max(0, len(out) - a)]
+    out = out[:a + len(inh) + int(0.05 * SR)]
+    return out / (np.abs(out).max() + 1e-9) * 0.9
+
+
 def sfx(name):
     f = f'{OUT}/sfx_{name}.wav'
     if os.path.exists(f): return f
@@ -34,11 +67,13 @@ def sfx(name):
         p = [tts('ALI', 'नहीं!', 'excited'), tts('BILAL', 'नहीं!', 'excited'), tts('ZAID', 'नहीं!', 'excited'), tts('MARYAM', 'नहीं!', 'excited')]
         return mixdown(p, f, [0, 0.04, 0.09, 0.02], [1, 1, 1, 0.9])
     if name == 'kids_giggle':
-        p = [tts('ALI', 'ही ही ही!', 'laugh'), tts('BILAL', 'ही ही!', 'laugh'), tts('ZAID', 'ही ही ही!', 'laugh')]
-        out = mixdown(p, f + '.t.wav', [0, 0.15, 0.3], [0.8, 0.8, 0.8])
-        subprocess.run(['ffmpeg', '-v', 'error', '-y', '-i', out, '-af', 'volume=0.55', f], check=True); os.remove(out); return f
+        parts = [(giggle('ALI', 1, 6, 1.0), 0.0, 0.9), (giggle('BILAL', 2, 5, 1.0, 0.16), 0.12, 0.8), (giggle('ZAID', 3, 7, 1.02, 0.13), 0.22, 0.75)]
+        n = max(int(o * SR) + len(x) for x, o, _ in parts); y = np.zeros(n)
+        for x, o, v in parts: a = int(o * SR); y[a:a + len(x)] += x * v
+        sf.write(f, y / (np.abs(y).max() + 1e-9) * 0.55, SR); return f
     if name == 'nana_giggle':
-        return tts('NANA', 'ही ही ही ही!', 'laugh')
+        y = giggle('NANA', 4, 5, 1.0, 0.2, 'हा')
+        sf.write(f, y * 0.9, SR); return f
     if name == 'crack':
         d = 1.4; x = np.zeros(int(SR * d))
         for i in range(5):
