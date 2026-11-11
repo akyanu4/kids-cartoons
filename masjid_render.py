@@ -363,8 +363,11 @@ def draw_texts(im, texts):
 
 def name_of(t): return shot_at(t)['name']
 
+import motion
+if os.environ.get('MOTION', '1') == '1': motion.install(sys.modules[__name__])
+
 def frame(t):
-    name, (cx, zoom), lay, over, texts = scene(t)
+    name, (cx, zoom), lay, over, texts = motion.scene(t) if motion._M else scene(t)
     b = bg(name); bw = b.width; world = b.copy()
     if lay:
         png = cairosvg.svg2png(bytestring=f'<svg xmlns="http://www.w3.org/2000/svg" width="{bw}" height="{H}">{C.DEFS}{lay}</svg>'.encode())
@@ -434,6 +437,12 @@ if __name__ == '__main__':
         sheet = Image.new('RGB', (640 * cols, 360 * rows), 'white')
         for i, im in enumerate(ims): sheet.paste(im, ((i % cols) * 640, (i // cols) * 360))
         sheet.save(sys.argv[3] if len(sys.argv) > 3 else f'{BUILD}/sheet.png'); print('ok')
+    elif sys.argv[1] == 'clip':      # clip <start> <end> <out.mp4>: a silent preview of part of the episode
+        a, b = float(sys.argv[2]), float(sys.argv[3])
+        p = subprocess.Popen(['ffmpeg', '-v', 'error', '-y', '-f', 'rawvideo', '-pix_fmt', 'rgb24', '-s', f'{W}x{H}', '-r', str(FPS), '-i', '-',
+                              '-c:v', 'libx264', '-preset', 'veryfast', '-crf', '22', '-pix_fmt', 'yuv420p', sys.argv[4]], stdin=subprocess.PIPE)
+        for k in range(int(a * FPS), int(b * FPS)): p.stdin.write(frame(k / FPS).tobytes())
+        p.stdin.close(); p.wait(); print('ok', sys.argv[4])
     elif sys.argv[1] == 'video':
         nw = int(sys.argv[2]) if len(sys.argv) > 2 else 2
         os.makedirs(f'{BUILD}/chunks', exist_ok=True)

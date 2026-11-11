@@ -47,7 +47,8 @@ EXPR = {
 
 
 def ex(name):
-    e = dict(EXPR['neutral']); e.update(EXPR.get(name or 'neutral', {})); return e
+    e = dict(EXPR['neutral'])
+    e.update(name if isinstance(name, dict) else EXPR.get(name or 'neutral', {})); return e
 
 
 _UID = 0

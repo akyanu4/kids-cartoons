@@ -1,0 +1,474 @@
+[
+{
+"id": "ep1_001",
+"ep": "ep1",
+"who": "N",
+"emo": "warm",
+"text": "علی اور پیاسی بلی",
+"key": "علی اور پیاسی بلی"
+},
+{
+"id": "ep1_002",
+"ep": "ep1",
+"who": "N",
+"emo": "neutral",
+"text": "گرمیوں کا ایک بہت گرم دن تھا۔ سورج خوب چمک رہا تھا، اور سب سائے کی تلاش میں تھے۔",
+"key": "گرمیوں کا ایک بہت گرم دن تھا۔ سورج خوب چمک رہا تھا، اور سب سائے کی تلاش میں تھے۔"
+},
+{
+"id": "ep1_003",
+"ep": "ep1",
+"who": "N",
+"emo": "neutral",
+"text": "علی اور اس کی چھوٹی بہن مریم اسکول سے گھر جا رہے تھے۔",
+"key": "علی اور اس کی چھوٹی بہن مریم اسکول سے گھر جا رہے تھے۔"
+},
+{
+"id": "ep1_004",
+"ep": "ep1",
+"who": "ALI",
+"emo": "tired",
+"text": "اُف! آج تو بہت گرمی ہے، مریم!",
+"key": "اُف! آج تو بہت گرمی ہے، مریم!"
+},
+{
+"id": "ep1_005",
+"ep": "ep1",
+"who": "MARYAM",
+"emo": "excited",
+"text": "میں تو گھر جا کر لیموں کا ٹھنڈا ٹھنڈا شربت پیوں گی!",
+"key": "میں تو گھر جا کر لیموں کا ٹھنڈا ٹھنڈا شربت پیوں گی!"
+},
+{
+"id": "ep1_006",
+"ep": "ep1",
+"who": "MARYAM",
+"emo": "surprised",
+"text": "علی، دیکھو! درخت کے نیچے ایک ننھی سی بلی!",
+"key": "علی، دیکھو! درخت کے نیچے ایک ننھی سی بلی!"
+},
+{
+"id": "ep1_007",
+"ep": "ep1",
+"who": "ALI",
+"emo": "sad",
+"text": "یہ تو بہت تھکی ہوئی لگ رہی ہے۔ شاید اسے بہت پیاس لگی ہے۔ بیچاری بلی!",
+"key": "یہ تو بہت تھکی ہوئی لگ رہی ہے۔ شاید اسے بہت پیاس لگی ہے۔ بیچاری بلی!"
+},
+{
+"id": "ep1_008",
+"ep": "ep1",
+"who": "ALI",
+"emo": "worried",
+"text": "لیکن... میری بوتل میں تو بس آخری تھوڑا سا پانی ہے۔",
+"key": "لیکن... میری بوتل میں تو بس آخری تھوڑا سا پانی ہے۔"
+},
+{
+"id": "ep1_009",
+"ep": "ep1",
+"who": "N",
+"emo": "thoughtful",
+"text": "علی کو بھی پیاس لگی تھی۔ پھر اسے یاد آیا کہ نانا ہمیشہ کیا کہتے ہیں۔",
+"key": "علی کو بھی پیاس لگی تھی۔ پھر اسے یاد آیا کہ نانا ہمیشہ کیا کہتے ہیں۔"
+},
+{
+"id": "ep1_010",
+"ep": "ep1",
+"who": "NANA",
+"emo": "warm",
+"text": "سب کے ساتھ مہربانی کرو، جانوروں کے ساتھ بھی۔ اللہ مہربان ہے، اور وہ مہربانی کو پسند کرتا ہے۔",
+"key": "سب کے ساتھ مہربانی کرو، جانوروں کے ساتھ بھی۔ اللہ مہربان ہے، اور وہ مہربانی کو پسند کرتا ہے۔"
+},
+{
+"id": "ep1_011",
+"ep": "ep1",
+"who": "ALI",
+"emo": "gentle",
+"text": "یہ لو ننھی بلی، پانی پی لو!",
+"key": "یہ لو ننھی بلی، پانی پی لو!"
+},
+{
+"id": "ep1_012",
+"ep": "ep1",
+"who": "N",
+"emo": "warm",
+"text": "ننھی بلی پانی پیتی رہی، پیتی رہی، یہاں تک کہ اس کی پیاس بجھ گئی۔",
+"key": "ننھی بلی پانی پیتی رہی، پیتی رہی، یہاں تک کہ اس کی پیاس بجھ گئی۔"
+},
+{
+"id": "ep1_013",
+"ep": "ep1",
+"who": "MARYAM",
+"emo": "laugh",
+"text": "ہی ہی! یہ شکریہ کہہ رہی ہے، علی!",
+"key": "ہی ہی! یہ شکریہ کہہ رہی ہے، علی!"
+},
+{
+"id": "ep1_014",
+"ep": "ep1",
+"who": "N",
+"emo": "excited",
+"text": "اور پتا ہے کیا ہوا؟ ننھی بلی ان کے ساتھ ساتھ چل پڑی!",
+"key": "اور پتا ہے کیا ہوا؟ ننھی بلی ان کے ساتھ ساتھ چل پڑی!"
+},
+{
+"id": "ep1_015",
+"ep": "ep1",
+"who": "ALI",
+"emo": "surprised",
+"text": "ارے! تم کہاں چلیں، بلی؟",
+"key": "ارے! تم کہاں چلیں، بلی؟"
+},
+{
+"id": "ep1_016",
+"ep": "ep1",
+"who": "NANA",
+"emo": "warm",
+"text": "السلام علیکم، میرے بچو! اور یہ ننھا مہمان کون ہے؟",
+"key": "السلام علیکم، میرے بچو! اور یہ ننھا مہمان کون ہے؟"
+},
+{
+"id": "ep1_017",
+"ep": "ep1",
+"who": "ALI",
+"emo": "happy",
+"text": "وعلیکم السلام، نانا! اسے بہت پیاس لگی تھی، تو میں نے اسے اپنا پانی دے دیا۔",
+"key": "وعلیکم السلام، نانا! اسے بہت پیاس لگی تھی، تو میں نے اسے اپنا پانی دے دیا۔"
+},
+{
+"id": "ep1_018",
+"ep": "ep1",
+"who": "NANA",
+"emo": "proud",
+"text": "ماشاءاللہ، علی! مجھے تم پر فخر ہے۔ ہمارے پیارے نبی ﷺ نے سکھایا کہ ہر جاندار پر مہربانی کرنے کا اجر ہے۔",
+"key": "ماشاءاللہ، علی! مجھے تم پر فخر ہے۔ ہمارے پیارے نبی ﷺ نے سکھایا کہ ہر جاندار پر مہربانی کرنے کا اجر ہے۔"
+},
+{
+"id": "ep1_019",
+"ep": "ep1",
+"who": "MARYAM",
+"emo": "excited",
+"text": "نانا، کیا ہم اسے رکھ لیں؟ اس کا نام لیمو رکھتے ہیں!",
+"key": "نانا، کیا ہم اسے رکھ لیں؟ اس کا نام لیمو رکھتے ہیں!"
+},
+{
+"id": "ep1_020",
+"ep": "ep1",
+"who": "NANA",
+"emo": "laugh",
+"text": "ہا ہا ہا! ٹھیک ہے، لیمو ہی سہی!",
+"key": "ہا ہا ہا! ٹھیک ہے، لیمو ہی سہی!"
+},
+{
+"id": "ep1_021",
+"ep": "ep1",
+"who": "N",
+"emo": "warm",
+"text": "ہر جاندار کے ساتھ مہربانی کرو۔ اللہ مہربان ہے، اور وہ مہربانی کو پسند کرتا ہے۔",
+"key": "ہر جاندار کے ساتھ مہربانی کرو۔ اللہ مہربان ہے، اور وہ مہربانی کو پسند کرتا ہے۔"
+},
+{
+"id": "ep2_001",
+"ep": "ep2",
+"who": "N",
+"emo": "warm",
+"text": "مسجد کے آداب",
+"key": "Masjid ke Adaab"
+},
+{
+"id": "ep2_002",
+"ep": "ep2",
+"who": "N",
+"emo": "neutral",
+"text": "جمعہ کا دن تھا۔ مسجد میں جماعت کھڑی تھی۔",
+"key": "Jumma ka din tha. Masjid mein jamaat khari thi."
+},
+{
+"id": "ep2_003",
+"ep": "ep2",
+"who": "N",
+"emo": "neutral",
+"text": "لیکن بلال کا دھیان نماز میں نہیں تھا۔ اس نے علی کو ہلکا سا دھکا دیا!",
+"key": "Lekin Bilal ka dhyaan namaz mein nahin tha. Usne Ali ko halka sa dhakka diya!"
+},
+{
+"id": "ep2_004",
+"ep": "ep2",
+"who": "N",
+"emo": "excited",
+"text": "علی نے بھی دھکا دیا، اور زید بھی کھی کھی کر کے ہنسنے لگا!",
+"key": "Ali ne bhi dhakka diya, aur Zaid bhi khi khi karke hansne laga!"
+},
+{
+"id": "ep2_005",
+"ep": "ep2",
+"who": "N",
+"emo": "warm",
+"text": "نماز کے بعد، نانا جان مسکراتے ہوئے بچوں کے پاس آئے۔",
+"key": "Namaz ke baad, Nana Jaan muskuraate hue bachchon ke paas aaye."
+},
+{
+"id": "ep2_006",
+"ep": "ep2",
+"who": "NANA",
+"emo": "warm",
+"text": "السلام علیکم، بچو! آؤ، ایک کھیل کھیلتے ہیں!",
+"key": "Assalamu alaikum, bachcho! Aao, ek khel khelte hain!"
+},
+{
+"id": "ep2_007",
+"ep": "ep2",
+"who": "BILAL",
+"emo": "excited",
+"text": "کھیل؟ واہ! کون سا کھیل، نانا جان؟",
+"key": "Khel? Wah! Kaunsa khel, Nana Jaan?"
+},
+{
+"id": "ep2_008",
+"ep": "ep2",
+"who": "NANA",
+"emo": "playful",
+"text": "میں دکھاتا ہوں کہ کچھ بچے نماز میں کیا کرتے ہیں۔ تم بتانا، صحیح ہے یا نہیں!",
+"key": "Main dikhaata hoon ke kuch bachche namaz mein kya karte hain. Tum batana, sahi hai ya nahin!"
+},
+{
+"id": "ep2_009",
+"ep": "ep2",
+"who": "NANA",
+"emo": "playful",
+"text": "دیکھو! میں اپنے ساتھ والے کو دھکا دیتا ہوں... دھکا!",
+"key": "Dekho! Main apne saath wale ko dhakka deta hoon... dhakka!"
+},
+{
+"id": "ep2_010",
+"ep": "ep2",
+"who": "NANA",
+"emo": "playful",
+"text": "کیا یہ صحیح طریقہ ہے؟",
+"key": "Kya yeh sahi tareeqa hai?"
+},
+{
+"id": "ep2_011",
+"ep": "ep2",
+"who": "NANA",
+"emo": "playful",
+"text": "اب میں نماز میں کھی کھی کر کے ہنستا ہوں!",
+"key": "Ab main namaz mein khi khi karke hansta hoon!"
+},
+{
+"id": "ep2_012",
+"ep": "ep2",
+"who": "NANA",
+"emo": "playful",
+"text": "اب میں اِدھر اُدھر دیکھتا ہوں... اور بڑی سی جمائی لیتا ہوں۔ آآآہ!",
+"key": "Ab main idhar udhar dekhta hoon... aur badi si jamaai leta hoon. Aaaaah!"
+},
+{
+"id": "ep2_013",
+"ep": "ep2",
+"who": "NANA",
+"emo": "playful",
+"text": "اب میں سر کھجاتا ہوں، کپڑے کھینچتا ہوں، اور انگلیاں چٹخاتا ہوں!",
+"key": "Ab main sar khujaata hoon, kapde kheenchta hoon, aur ungliyan chatkaata hoon!"
+},
+{
+"id": "ep2_014",
+"ep": "ep2",
+"who": "NANA",
+"emo": "playful",
+"text": "اور اب میں نماز پڑھنے والوں کے سامنے سے بھاگتا ہوں!",
+"key": "Aur ab main namaz padhne walon ke saamne se bhaagta hoon!"
+},
+{
+"id": "ep2_015",
+"ep": "ep2",
+"who": "MARYAM",
+"emo": "laugh",
+"text": "نانا جان، آپ تو بالکل بلال جیسے لگ رہے تھے!",
+"key": "Nana Jaan, aap to bilkul Bilal jaise lag rahe the!"
+},
+{
+"id": "ep2_016",
+"ep": "ep2",
+"who": "BILAL",
+"emo": "sad",
+"text": "جی، نانا جان... اب ہم ایسا نہیں کریں گے۔",
+"key": "Ji, Nana Jaan... ab hum aisa nahin karenge."
+},
+{
+"id": "ep2_017",
+"ep": "ep2",
+"who": "NANA",
+"emo": "warm",
+"text": "شاباش! اب دیکھو، نماز کا صحیح طریقہ۔",
+"key": "Shabaash! Ab dekho, namaz ka sahi tareeqa."
+},
+{
+"id": "ep2_018",
+"ep": "ep2",
+"who": "NANA",
+"emo": "warm",
+"text": "صف سیدھی رکھو۔ کندھے سے کندھا، پاؤں سے پاؤں ملاؤ۔",
+"key": "Saff seedhi rakho. Kandhe se kandha, paon se paon milao."
+},
+{
+"id": "ep2_019",
+"ep": "ep2",
+"who": "NANA",
+"emo": "warm",
+"text": "نظر سجدے کی جگہ پر رکھو۔",
+"key": "Nazar sajde ki jagah par rakho."
+},
+{
+"id": "ep2_020",
+"ep": "ep2",
+"who": "NANA",
+"emo": "warm",
+"text": "اللہ اکبر کہو، اور ہاتھ کانوں تک اٹھاؤ۔",
+"key": "Allahu Akbar kaho, aur haath kaanon tak uthao."
+},
+{
+"id": "ep2_021",
+"ep": "ep2",
+"who": "NANA",
+"emo": "warm",
+"text": "ہاتھ باندھ کر، سکون سے کھڑے رہو۔",
+"key": "Haath baandh kar, sukoon se khade raho."
+},
+{
+"id": "ep2_022",
+"ep": "ep2",
+"who": "NANA",
+"emo": "warm",
+"text": "رکوع میں جھکو، اور ہاتھ گھٹنوں پر رکھو۔",
+"key": "Ruku mein jhuko, aur haath ghutnon par rakho."
+},
+{
+"id": "ep2_023",
+"ep": "ep2",
+"who": "NANA",
+"emo": "warm",
+"text": "سجدے میں ماتھا اور ناک زمین پر لگاؤ۔",
+"key": "Sajde mein maatha aur naak zameen par lagao."
+},
+{
+"id": "ep2_024",
+"ep": "ep2",
+"who": "NANA",
+"emo": "warm",
+"text": "پھر آرام سے بیٹھو۔ نہ ہلنا، نہ ہنسنا۔",
+"key": "Phir aaraam se baitho. Na hilna, na hansna."
+},
+{
+"id": "ep2_025",
+"ep": "ep2",
+"who": "ZAID",
+"emo": "excited",
+"text": "یہ تو بہت آسان ہے!",
+"key": "Yeh to bahut aasaan hai!"
+},
+{
+"id": "ep2_026",
+"ep": "ep2",
+"who": "ALI",
+"emo": "happy",
+"text": "اب ہم ہمیشہ ایسے ہی نماز پڑھیں گے، نانا جان!",
+"key": "Ab hum hamesha aise hi namaz padhenge, Nana Jaan!"
+},
+{
+"id": "ep2_027",
+"ep": "ep2",
+"who": "N",
+"emo": "warm",
+"text": "اگلی جماعت میں، تینوں بچے بالکل سیدھے اور سکون سے کھڑے تھے۔",
+"key": "Agli jamaat mein, teeno bachche bilkul seedhe aur sukoon se khade the."
+},
+{
+"id": "ep2_028",
+"ep": "ep2",
+"who": "NANA",
+"emo": "proud",
+"text": "ماشاءاللہ! مجھے تم تینوں پر فخر ہے۔",
+"key": "MashaAllah! Mujhe tum teeno par fakhr hai."
+},
+{
+"id": "ep2_029",
+"ep": "ep2",
+"who": "N",
+"emo": "warm",
+"text": "مسجد اللہ کا گھر ہے۔ وہاں سکون اور ادب سے رہو۔",
+"key": "Masjid Allah ka ghar hai. Wahan sukoon aur adab se raho."
+},
+{
+"id": "sfx_001",
+"ep": "sfx",
+"who": "ALI",
+"emo": "excited",
+"text": "نہیں!",
+"key": "nahin"
+},
+{
+"id": "sfx_002",
+"ep": "sfx",
+"who": "ALI",
+"emo": "laugh",
+"text": "ہی ہی ہی ہی ہی!",
+"key": "giggle"
+},
+{
+"id": "sfx_003",
+"ep": "sfx",
+"who": "BILAL",
+"emo": "excited",
+"text": "نہیں!",
+"key": "nahin"
+},
+{
+"id": "sfx_004",
+"ep": "sfx",
+"who": "BILAL",
+"emo": "laugh",
+"text": "ہی ہی ہی ہی ہی!",
+"key": "giggle"
+},
+{
+"id": "sfx_005",
+"ep": "sfx",
+"who": "ZAID",
+"emo": "excited",
+"text": "نہیں!",
+"key": "nahin"
+},
+{
+"id": "sfx_006",
+"ep": "sfx",
+"who": "ZAID",
+"emo": "laugh",
+"text": "ہی ہی ہی ہی ہی!",
+"key": "giggle"
+},
+{
+"id": "sfx_007",
+"ep": "sfx",
+"who": "MARYAM",
+"emo": "excited",
+"text": "نہیں!",
+"key": "nahin"
+},
+{
+"id": "sfx_008",
+"ep": "sfx",
+"who": "MARYAM",
+"emo": "laugh",
+"text": "ہی ہی ہی ہی ہی!",
+"key": "giggle"
+},
+{
+"id": "sfx_009",
+"ep": "sfx",
+"who": "NANA",
+"emo": "laugh",
+"text": "ہا ہا ہا ہا!",
+"key": "giggle"
+}
+]

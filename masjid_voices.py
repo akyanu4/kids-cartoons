@@ -13,7 +13,30 @@ VU.VOICE.update({'BILAL': ('hm_psi', 1.30, 1.0), 'ZAID': ('hm_omega', 1.40, 1.02
 VU.EMO['playful'] = (1.02, 1.03, 1.05)
 
 
-def tts(who, dev, emo): return VU.tts(who, dev, emo)
+# Microsoft Urdu voices (made on the user's PC by voicekit/make_voices.bat, unzipped into voices_ms/).
+# Set VOICES=kokoro to go back to the old offline voices.
+USE_MS = os.environ.get('VOICES', 'ms') == 'ms' and os.path.isdir('voices_ms')
+MS = {(l['ep'], l['who'], l['key'], l['emo']): l['id'] for l in json.load(open('voicekit/lines.json'))}
+
+
+def ms_wav(i):
+    """mp3 -> mono 24 kHz wav with the silence at both ends cut off (a short tail kept)"""
+    out = f'{OUT}/ms_{i}.wav'
+    if not os.path.exists(out):
+        subprocess.run(['ffmpeg', '-v', 'error', '-y', '-i', f'voices_ms/{i}.mp3', '-ac', '1', '-ar', str(SR), '-af',
+                        'silenceremove=start_periods=1:start_threshold=-45dB,areverse,silenceremove=start_periods=1:start_threshold=-45dB,areverse,apad=pad_dur=0.06',
+                        out], check=True)
+    return out
+
+
+def tts(who, dev, emo, text=None, ep='ep2'):
+    if USE_MS and text is not None and (ep, who, text, emo) in MS: return ms_wav(MS[(ep, who, text, emo)])
+    return VU.tts(who, dev, emo)
+
+
+def kid_sfx(who, key, dev, emo):
+    if USE_MS and ('sfx', who, key, emo) in MS: return ms_wav(MS[('sfx', who, key, emo)])
+    return VU.tts(who, dev, emo)
 
 
 def mixdown(parts, out, offsets, vols):
@@ -28,7 +51,11 @@ def mixdown(parts, out, offsets, vols):
 
 def _syll(who, txt):
     """one short laugh syllable from this character's voice, silence trimmed"""
-    x, sr = sf.read(tts(who, txt, 'laugh'))
+    x, sr = sf.read(kid_sfx(who, 'giggle', txt, 'laugh'))
+    if USE_MS:   # keep only the first 'hee' of the recorded giggle
+        e = np.convolve(np.abs(x), np.ones(240) / 240, 'same'); on = e > 0.1 * e.max()
+        a = int(np.argmax(on)); b = a + int(np.argmax(~on[a:])) if (~on[a:]).any() else len(x)
+        x = x[a:max(b, a + int(0.08 * SR))]
     x = x if x.ndim == 1 else x.mean(1)
     on = np.where(np.abs(x) > 0.04 * np.abs(x).max())[0]
     x = x[on[0]:on[-1]] if len(on) else x
@@ -64,7 +91,7 @@ def sfx(name):
     if os.path.exists(f): return f
     rng = np.random.default_rng(7)
     if name == 'nahin':     # all four children shout together
-        p = [tts('ALI', 'नहीं!', 'excited'), tts('BILAL', 'नहीं!', 'excited'), tts('ZAID', 'नहीं!', 'excited'), tts('MARYAM', 'नहीं!', 'excited')]
+        p = [kid_sfx(w, 'nahin', 'नहीं!', 'excited') for w in ('ALI', 'BILAL', 'ZAID', 'MARYAM')]
         return mixdown(p, f, [0, 0.04, 0.09, 0.02], [1, 1, 1, 0.9])
     if name == 'kids_giggle':
         parts = [(giggle('ALI', 1, 6, 1.0), 0.0, 0.9), (giggle('BILAL', 2, 5, 1.0, 0.16), 0.12, 0.8), (giggle('ZAID', 3, 7, 1.02, 0.13), 0.22, 0.75)]
@@ -100,7 +127,7 @@ def build():
             if b[0] == 'wait': t += b[1]; continue
             if b[0] == 'say':
                 _, who, text, dev, emo = b
-                f = tts(who, dev, emo); d = V.dur(f)
+                f = tts(who, dev, emo, text); d = V.dur(f)
                 bl.append({'kind': 'say', 'who': who, 'text': text, 'emo': emo, 'file': f, 't': t, 'd': d, 'env': V.envelope(f)})
                 t += d + 0.25
             else:
