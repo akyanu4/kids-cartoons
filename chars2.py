@@ -371,10 +371,16 @@ def apply_pose(st, kind):
         put(lean=lean, arm_f=af, elb_f=ef, hand_f='open', arm_b=ab, elb_b=eb, hand_b='open')
     elif p == 'sit':
         q['legs'] = (88, 172, 84, 172, 0, 0); q['drop'] = B['hip'] - 36; q['arms_front'] = True
-        knee_y = -36
-        af, ef = _arm_to(B, 0, B['hip'] - 36, B['sf'], (B['thigh'] * 0.85, knee_y - 22), up=False)
-        ab, eb = _arm_to(B, 0, B['hip'] - 36, B['sb'], (B['thigh'] * 0.6, knee_y - 26), up=False)
-        put(arm_f=af, elb_f=ef, hand_f='relax', arm_b=ab, elb_b=eb, hand_b='relax', look_y=0.9)
+        knee_y = -36; dr = B['hip'] - 36
+        if st.get('fold'):     # arms folded across the chest, listening politely
+            cy = B['sf'][1] + (B['hip'] * 0.34) + dr
+            af, ef = _arm_to(B, 0, dr, B['sf'], (B['sb'][0] + 8, cy), up=False)
+            ab, eb = _arm_to(B, 0, dr, B['sb'], (B['sf'][0] - 4, cy + 12), up=False)
+            put(arm_f=af, elb_f=ef, hand_f='fist', arm_b=ab, elb_b=eb, hand_b='fist')
+        else:
+            af, ef = _arm_to(B, 0, dr, B['sf'], (B['thigh'] * 0.85, knee_y - 22), up=False)
+            ab, eb = _arm_to(B, 0, dr, B['sb'], (B['thigh'] * 0.6, knee_y - 26), up=False)
+            put(arm_f=af, elb_f=ef, hand_f='relax', arm_b=ab, elb_b=eb, hand_b='relax', look_y=0.9)
     return q
 
 

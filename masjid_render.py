@@ -218,6 +218,7 @@ def scene(t):
         for i, (w, fn) in enumerate(KIDS):
             st = A(x=kx[i], y=GROUND, s=0.88, face=1, blink=bl(i), talk=m[w], look=1, expr='happy')
             st['pose'] = 'sit' if sitting else ('qiyam' if n == 'g_run' else 'stand')
+            if sitting: st['fold'] = True
             if n == 'after' and lt < 2.5: st['expr'] = 'surprised' if lt > 1.0 else 'neutral'
             if anyN:
                 st.update(expr='excited', arm_f=150 + 10 * math.sin(t * 9 + i), elb_f=20, hand_f='open', arm_b=150, elb_b=20, hand_b='open', bob=-8 * abs(math.sin(t * 9 + i)))
