@@ -153,15 +153,19 @@ def face_profile(r, st, kind, skin):
     # nose sticking out past the outline
     s += (f'<path d="M{r*.9},{-r*.12} Q{r*1.18},{r*.14} {r*1.0},{r*.24} Q{r*.92},{r*.28} {r*.86},{r*.22}Z" fill="{skin}" {SW(4)}/>')
     ex_, ey_ = r * .58, -r * .1
-    if blink > 0.5:
-        s += f'<path d="M{ex_-r*.1},{ey_} Q{ex_},{ey_+r*.05} {ex_+r*.1},{ey_}" fill="none" {SW(4)}/>'
+    if blink > 0.5 or st.get('eyes_down'):    # closed / lowered: a soft downward lid line with lashes
+        s += f'<path d="M{ex_-r*.11},{ey_-r*.01} Q{ex_},{ey_+r*.07} {ex_+r*.12},{ey_+r*.02}" fill="none" {SW(4)}/>'
     else:
         s += f'<path d="M{ex_-r*.1},{ey_} Q{ex_},{ey_-r*.14} {ex_+r*.12},{ey_+r*.01} Q{ex_},{ey_+r*.1} {ex_-r*.1},{ey_}Z" fill="#fff" {SW(3.5)}/>'
         s += f'<circle cx="{ex_+r*.05}" cy="{ey_}" r="{r*.065}" fill="#3a1f10"/><circle cx="{ex_+r*.07}" cy="{ey_-r*.03}" r="{r*.022}" fill="#fff"/>'
         if kind == 'maryam': s += f'<path d="M{ex_+r*.1},{ey_-r*.05} l{r*.08},{-r*.05}" {SW(3)}/>'
     col = '#2a1a12' if kind != 'nana' else '#8f8a85'
     s += f'<path d="M{ex_-r*.14},{ey_-r*.24} Q{ex_},{ey_-r*.32} {ex_+r*.18},{ey_-r*.24}" fill="none" stroke="{col}" stroke-width="6" stroke-linecap="round"/>'
-    s += f'<path d="M{r*.66},{r*.48} Q{r*.78},{r*.52} {r*.86},{r*.46}" fill="none" {SW(4)}/>'                     # calm closed mouth
+    tk = st.get('talk', 0) or 0
+    if tk > 0.08:
+        s += f'<path d="M{r*.64},{r*.46} Q{r*.78},{r*.5} {r*.9},{r*.44} Q{r*.84},{r*(.5+.22*tk)} {r*.7},{r*(.52+.16*tk)}Z" fill="#6e1f2a" {SW(3.5)}/>'
+    else:
+        s += f'<path d="M{r*.66},{r*.48} Q{r*.78},{r*.52} {r*.86},{r*.46}" fill="none" {SW(4)}/>'                     # calm closed mouth
     s += f'<ellipse cx="{r*.4}" cy="{r*.3}" rx="{r*.16}" ry="{r*.1}" fill="url(#blush)"/>'
     return s
 
@@ -203,6 +207,11 @@ def hand(x, y, ang, size, pose, skin, back=False):
         for i, fx in enumerate((-9, -3, 3, 9)):
             s += f'<ellipse cx="{fx}" cy="24" rx="5.6" ry="6.5" fill="{col}" {SW(3)}/>'
         s += finger(13, 8, 35, 14, 25)
+    elif pose == 'flat':   # palm flat, fingers together and straight, seen from the side (thumb on top)
+        s += f'<path d="M-10,-2 Q-13,12 -11,24 L-9,42 Q-8,50 0,50 Q8,50 9,42 L11,24 Q14,10 10,-2Z" fill="{col}" {SW(4)}/>'
+        s += f'<path d="M-4,28 L-3,44 M3,28 L3,44" stroke="{INK}" stroke-width="1.8" opacity=".4" stroke-linecap="round"/>'
+        s += f'<path d="M-8,4 Q-16,12 -14,22 Q-12,27 -7,24" fill="{col}" {SW(3.5)}/>'          # thumb
+        s += f'<ellipse cx="3" cy="14" rx="5" ry="7" fill="#fff" opacity=".15"/>'
     else:  # relax: fingers together, slightly curled, thumb along the side
         s += f'<path d="M-13,4 Q-16,22 -8,32 Q2,38 11,30 Q16,20 13,4Z" fill="{col}" {SW(4)}/>'
         s += f'<path d="M-6,22 L-6,31 M0,23 L0,34 M6,22 L6,31" stroke="{INK}" stroke-width="2" opacity=".45" stroke-linecap="round"/>'
@@ -217,7 +226,7 @@ def bottle(x, y, ang, tilt):
             f'<rect x="-9" y="-22" width="5" height="34" rx="2" fill="#fff" opacity=".6"/></g></g>')
 
 
-def arm(sx, sy, ang, bend, L1, L2, w, sleeve, sleeve_len, skin, pose, back=False, holding=None, hold_tilt=0):
+def arm(sx, sy, ang, bend, L1, L2, w, sleeve, sleeve_len, skin, pose, back=False, holding=None, hold_tilt=0, hand_ang=None):
     """Upper arm from shoulder, forearm bent forward by `bend` degrees. sleeve_len: 0..1 of upper arm, or 2 = full sleeve."""
     ex_, ey_ = pt(sx, sy, ang, L1)
     fa = ang + bend
@@ -234,7 +243,7 @@ def arm(sx, sy, ang, bend, L1, L2, w, sleeve, sleeve_len, skin, pose, back=False
         s += capsule([(sx, sy), (mx, my)], w * 1.25, sl)
     if holding == 'bottle':
         s += bottle(wx, wy, fa, hold_tilt)
-    s += hand(wx, wy, fa, w * 0.95, 'hold' if holding else pose, skin, back)
+    s += hand(wx, wy, fa if hand_ang is None else hand_ang, w * 0.95, 'hold' if holding else pose, skin, back)
     return s
 
 
@@ -299,9 +308,9 @@ DIMS = {'kid': (150, 70), 'girl': (140, 66), 'nana': (175, 84)}
 
 
 # per body type: hip height, thigh, shin, shoulder front (x,y), shoulder back, upper arm, forearm, head centre y, head r, hand size
-BODY = {'kid': dict(hip=150, thigh=70, sf=(42, -280), sb=(-40, -280), L1=60, L2=56, head=-360, r=70, hand=26),
-        'girl': dict(hip=140, thigh=66, sf=(38, -272), sb=(-36, -272), L1=56, L2=52, head=-342, r=60, hand=23),
-        'nana': dict(hip=175, thigh=84, sf=(52, -392), sb=(-50, -392), L1=86, L2=80, head=-486, r=62, hand=30)}
+BODY = {'kid': dict(neck=-300, hip=150, thigh=70, sf=(42, -280), sb=(-40, -280), L1=60, L2=56, head=-360, r=70, hand=26),
+        'girl': dict(neck=-290, hip=140, thigh=66, sf=(38, -272), sb=(-36, -272), L1=56, L2=52, head=-342, r=60, hand=23),
+        'nana': dict(neck=-420, hip=175, thigh=84, sf=(52, -392), sb=(-50, -392), L1=86, L2=80, head=-486, r=62, hand=30)}
 
 
 def _rot(px, py, cx, cy, deg):
@@ -321,15 +330,21 @@ def _ik(sx, sy, tx, ty, L1, L2, up=True):
     return math.degrees(best[0]), math.degrees(best[1])
 
 
-def _arm_to(B, lean, drop, shoulder, target, up):
+def _arm_to(B, lean, drop, shoulder, target, up, wrist=False):
     hipy = -B['hip']
     sx, sy = _rot(shoulder[0], shoulder[1], 0, hipy, lean); sy += drop
-    w1, w2 = _ik(sx, sy, target[0], target[1], B['L1'], B['L2'] + B['hand'] * 0.6, up)
+    w1, w2 = _ik(sx, sy, target[0], target[1], B['L1'], B['L2'] + (0 if wrist else B['hand'] * 0.6), up)
     return lean + w1, w2 - w1          # body-frame shoulder angle, elbow bend
 
 
 def _nose(B, lean, drop):
     r = B['r']; return _rot(r * 1.08, B['head'] + r * 0.2, 0, -B['hip'], lean)[0], _rot(r * 1.08, B['head'] + r * 0.2, 0, -B['hip'], lean)[1] + drop
+
+
+def _head_pt(B, lean, drop, tilt, px, py):
+    """world position of a point (px, py) given in head space (relative to the head centre, in units of r)"""
+    r = B['r']; x, y = _rot(px * r, B['head'] + py * r, 0, B['neck'], tilt)
+    x, y = _rot(x, y, 0, -B['hip'], lean); return x, y + drop
 
 
 def apply_pose(st, kind):
@@ -357,18 +372,48 @@ def apply_pose(st, kind):
         ab, eb = _arm_to(B, lean, 0, B['sb'], (knee[0] - 10, knee[1] - 10), up=False)
         put(lean=lean, arm_f=af, elb_f=ef, hand_f='relax', arm_b=ab, elb_b=eb, hand_b='relax')
     elif p == 'sajda':
-        # knees, toes, palms, nose and forehead on the floor; feet upright with toes pointing forward; elbows up
-        q['profile'] = True; q['arms_front'] = True
+        # knees, toes, palms, nose and forehead on the floor; face turned down to the floor, eyes lowered;
+        # palms flat beside the cheeks with the fingers together pointing forward (to the qibla); elbows up
+        q['profile'] = True; q['arms_front'] = True; q['eyes_down'] = True
         q['legs'] = (0, 112, 0, 112, 0, 0); drop = B['hip'] - B['thigh'] - 20; q['drop'] = drop; q['foot'] = 95
-        lo, hi = 90.0, 170.0
-        for _ in range(40):                              # find the bend where the nose just touches the floor (y = 0)
+        FACE = 100                                       # total head turn: forehead and nose both on the floor
+        nose = lambda L: _head_pt(B, L, drop, FACE - L, 1.12, 0.16)
+        lo, hi = 90.0, 175.0
+        for _ in range(40):
             mid = (lo + hi) / 2
-            if _nose(B, mid, drop)[1] < -2: lo = mid
+            if nose(mid)[1] < -1: lo = mid
             else: hi = mid
-        lean = lo; nx, ny = _nose(B, lean, drop)
-        af, ef = _arm_to(B, lean, drop, B['sf'], (nx - B['r'] * 1.3, -8), up=False)     # palm flat beside the ear/cheek
-        ab, eb = _arm_to(B, lean, drop, B['sb'], (nx - B['r'] * 1.55, -10), up=False)
-        put(lean=lean, arm_f=af, elb_f=ef, hand_f='open', arm_b=ab, elb_b=eb, hand_b='open')
+        lean = lo; tilt = FACE - lean
+        cx, _ = _head_pt(B, lean, drop, tilt, 0.5, 0.35)       # cheek
+        hl = B['hand'] * 1.25                                   # palm + fingers length
+        af, ef = _arm_to(B, lean, drop, B['sf'], (cx - hl * 0.55, -B['hand'] * 0.3), up=False, wrist=True)
+        ab, eb = _arm_to(B, lean, drop, B['sb'], (cx - hl * 0.75, -B['hand'] * 0.35), up=False, wrist=True)
+        q['head_tilt'] = tilt
+        put(lean=lean, arm_f=af, elb_f=ef, hand_f='flat', arm_b=ab, elb_b=eb, hand_b='flat',
+            hand_ang_f=90 + lean, hand_ang_b=90 + lean)
+    elif p == 'jalsa':
+        # side view, sitting back on the heels: knees on the floor in front, near foot upright on its toes,
+        # far foot laid flat under the body; back straight, hands flat on the thighs, looking ahead
+        q['profile'] = True; q['arms_front'] = True
+        T, w = B['thigh'], {'kid': 36, 'girl': 30, 'nana': 38}[kind]          # thigh length, leg thickness
+        H = w * 1.45                                     # hip height above the floor
+        ky = -w * 0.5                                    # knee centre on the floor
+        dy = H + ky; dx = math.sqrt(max(1, T * T - dy * dy))
+        thigh = math.degrees(math.atan2(dx, dy))         # 0 = down, 90 = forward
+        kx = dx; ankle_h = w * 1.0
+        def shin_to(ax, ay):
+            vx, vy = ax - kx, ay - (-H + dy)
+            sa = math.degrees(math.atan2(vx, vy)); return thigh - sa
+        kA = shin_to(-w * 0.3, -ankle_h - w * 0.2)      # near leg: ankle raised on the upright foot
+        kB = shin_to(-w * 0.6, -w * 0.5)                # far leg: shin flat on the floor
+        q['legs'] = (thigh, kA, thigh - 2, kB, 0, 0); q['drop'] = B['hip'] - H
+        q['foot'] = 82; q['foot_b'] = 172
+        lean = 4
+        hx, hy = dx * 0.62, -H + dy * 0.62 - w * 0.55   # on top of the thigh, near the knee
+        af, ef = _arm_to(B, lean, B['hip'] - H, B['sf'], (hx, hy), up=False, wrist=True)
+        ab, eb = _arm_to(B, lean, B['hip'] - H, B['sb'], (hx - 8, hy + 2), up=False, wrist=True)
+        put(lean=lean, arm_f=af, elb_f=ef, hand_f='flat', arm_b=ab, elb_b=eb, hand_b='flat',
+            hand_ang_f=thigh + lean, hand_ang_b=thigh + lean)
     elif p == 'sit':
         q['legs'] = (88, 172, 84, 172, 0, 0); q['drop'] = B['hip'] - 36; q['arms_front'] = True
         knee_y = -36; dr = B['hip'] - 36
@@ -398,9 +443,9 @@ def ali(st, look=None):
     RED, PANTS, SHOE, ALI_SKIN_ = L['shirt'], L['pants'], L['shoe'], L['skin']
     g = f'<g transform="translate({x},{y + bob*s}) scale({s*f},{s})">'
     # legs (hip at -150)
-    g += leg(-15, -150, lB, kB, 70, 68, 36, PANTS, shade(SHOE,.88), back=True, foot=st.get('foot'))
+    g += leg(-15, -150, lB, kB, 70, 68, 36, PANTS, shade(SHOE,.88), back=True, foot=st.get('foot_b', st.get('foot')))
     g += f'<g transform="rotate({lean},0,-150)">'
-    if not st.get('arms_front'): g += arm(-40, -280 + _shoulder_lift(ab), ab, ebb, 60, 56, 27, RED, .45, ALI_SKIN_, st.get('hand_b', 'relax'), back=True)
+    if not st.get('arms_front'): g += arm(-40, -280 + _shoulder_lift(ab), ab, ebb, 60, 56, 27, RED, .45, ALI_SKIN_, st.get('hand_b', 'relax'), back=True, hand_ang=st.get('hand_ang_b'))
     g += '</g>'
     g += leg(15, -150, lA, kA, 70, 68, 36, PANTS, SHOE, foot=st.get('foot'))
     g += f'<g transform="rotate({lean},0,-150)">'
@@ -429,8 +474,8 @@ def ali(st, look=None):
     g += f'<g transform="translate(0,{hy+6})">' + (face_profile(70, st, L['kind'], ALI_SKIN_) if PROF else face(70, st, L['kind'])) + '</g>'
     g += '</g>'
     # front arm
-    if st.get('arms_front'): g += arm(-40, -280 + _shoulder_lift(ab), ab, ebb, 60, 56, 27, RED, .45, ALI_SKIN_, st.get('hand_b', 'relax'), back=True)
-    g += arm(42, -280 + _shoulder_lift(af), af, ebf, 60, 56, 27, RED, .45, ALI_SKIN_, st.get('hand_f', 'relax'),
+    if st.get('arms_front'): g += arm(-40, -280 + _shoulder_lift(ab), ab, ebb, 60, 56, 27, RED, .45, ALI_SKIN_, st.get('hand_b', 'relax'), back=True, hand_ang=st.get('hand_ang_b'))
+    g += arm(42, -280 + _shoulder_lift(af), af, ebf, 60, 56, 27, RED, .45, ALI_SKIN_, st.get('hand_f', 'relax'), hand_ang=st.get('hand_ang_f'),
              holding=st.get('hold'), hold_tilt=st.get('hold_tilt', 0))
     g += f'<ellipse cx="38" cy="{-276 + _shoulder_lift(af)}" rx="18" ry="16" fill="{RED}"/>'
     g += '</g></g>'
@@ -446,8 +491,8 @@ def maryam(st):
     af, ebf, ab, ebb = _arms_state(st, sw, None)
     DRESS, SCARF = '#E86FA0', '#8E7CC3'
     g = f'<g transform="translate({x},{y + bob*s}) scale({s*f},{s})">'
-    g += leg(-13, -140, lB, kB, 66, 64, 30, '#f6d7e6', '#b8325f', back=True, foot=st.get('foot'))
-    g += f'<g transform="rotate({lean},0,-140)">' + ('' if st.get('arms_front') else arm(-36, -272 + _shoulder_lift(ab), ab, ebb, 56, 52, 24, DRESS, 2, MAR_SKIN, st.get('hand_b', 'relax'), back=True)) + '</g>'
+    g += leg(-13, -140, lB, kB, 66, 64, 30, '#f6d7e6', '#b8325f', back=True, foot=st.get('foot_b', st.get('foot')))
+    g += f'<g transform="rotate({lean},0,-140)">' + ('' if st.get('arms_front') else arm(-36, -272 + _shoulder_lift(ab), ab, ebb, 56, 52, 24, DRESS, 2, MAR_SKIN, st.get('hand_b', 'relax'), back=True, hand_ang=st.get('hand_ang_b'))) + '</g>'
     g += leg(13, -140, lA, kA, 66, 64, 30, '#f6d7e6', '#c0396b', foot=st.get('foot'))
     g += f'<g transform="rotate({lean},0,-140)">'
     g += f'<path d="M-44,-286 Q-56,-200 -80,-92 Q0,-74 80,-92 Q56,-200 44,-286 Q0,-298 -44,-286Z" fill="{DRESS}" {SW()}/>'
@@ -461,8 +506,8 @@ def maryam(st):
     g += f'<path d="M-66,{hy-2} Q-60,{hy-60} 0,{hy-66} Q60,{hy-60} 66,{hy-2} Q50,{hy-46} 0,{hy-50} Q-50,{hy-46} -66,{hy-2}Z" fill="{SCARF}" {SW(4)}/>'
     g += f'<path d="M-40,{hy-40} Q0,{hy-52} 40,{hy-40}" fill="none" stroke="#2a1a12" stroke-width="8" stroke-linecap="round"/>'
     g += f'<g transform="translate(0,{hy+10})">' + (face_profile(60, st, 'maryam', MAR_SKIN) if st.get('profile') else face(60, st, 'maryam')) + '</g></g>'
-    if st.get('arms_front'): g += arm(-36, -272 + _shoulder_lift(ab), ab, ebb, 56, 52, 24, DRESS, 2, MAR_SKIN, st.get('hand_b', 'relax'), back=True)
-    g += arm(38, -272 + _shoulder_lift(af), af, ebf, 56, 52, 24, DRESS, 2, MAR_SKIN, st.get('hand_f', 'relax'))
+    if st.get('arms_front'): g += arm(-36, -272 + _shoulder_lift(ab), ab, ebb, 56, 52, 24, DRESS, 2, MAR_SKIN, st.get('hand_b', 'relax'), back=True, hand_ang=st.get('hand_ang_b'))
+    g += arm(38, -272 + _shoulder_lift(af), af, ebf, 56, 52, 24, DRESS, 2, MAR_SKIN, st.get('hand_f', 'relax'), hand_ang=st.get('hand_ang_f'))
     g += f'<ellipse cx="34" cy="{-268 + _shoulder_lift(af)}" rx="16" ry="15" fill="{DRESS}"/>'
     g += '</g></g>'
     return g
@@ -477,8 +522,8 @@ def nana(st):
     af, ebf, ab, ebb = _arms_state(st, sw, None)
     KURTA, KD = '#f8f8f4', '#dcdcd2'
     g = f'<g transform="translate({x},{y + bob*s}) scale({s*f},{s})">'
-    g += leg(-17, -175, lB, kB, 84, 84, 38, '#ecebe3', '#6b4a30', back=True, foot=st.get('foot'))
-    g += f'<g transform="rotate({lean},0,-175)">' + ('' if st.get('arms_front') else arm(-50, -392 + _shoulder_lift(ab), ab, ebb, 86, 80, 32, KURTA, 2, NANA_SKIN, st.get('hand_b', 'relax'), back=True)) + '</g>'
+    g += leg(-17, -175, lB, kB, 84, 84, 38, '#ecebe3', '#6b4a30', back=True, foot=st.get('foot_b', st.get('foot')))
+    g += f'<g transform="rotate({lean},0,-175)">' + ('' if st.get('arms_front') else arm(-50, -392 + _shoulder_lift(ab), ab, ebb, 86, 80, 32, KURTA, 2, NANA_SKIN, st.get('hand_b', 'relax'), back=True, hand_ang=st.get('hand_ang_b'))) + '</g>'
     g += leg(17, -175, lA, kA, 84, 84, 38, '#f3f2ea', '#6b4a30', foot=st.get('foot'))
     g += f'<g transform="rotate({lean},0,-175)">'
     # long white kurta: band collar, button placket, chest pocket
@@ -524,8 +569,8 @@ def nana(st):
         g += f'<path d="M{l},-20 Q{(l+r_)/2},-28 {r_},-20 M{l+1},-12 L{r_-1},-12" fill="none" stroke="#c9b48a" stroke-width="3"/>'
         g += f'<path d="M{fx + 62*.36 + 21},-20 L60,-14" stroke="#3a2a22" stroke-width="4"/>'
     g += '</g></g>'
-    if st.get('arms_front'): g += arm(-50, -392 + _shoulder_lift(ab), ab, ebb, 86, 80, 32, KURTA, 2, NANA_SKIN, st.get('hand_b', 'relax'), back=True)
-    g += arm(52, -392 + _shoulder_lift(af), af, ebf, 86, 80, 32, KURTA, 2, NANA_SKIN, st.get('hand_f', 'relax'))
+    if st.get('arms_front'): g += arm(-50, -392 + _shoulder_lift(ab), ab, ebb, 86, 80, 32, KURTA, 2, NANA_SKIN, st.get('hand_b', 'relax'), back=True, hand_ang=st.get('hand_ang_b'))
+    g += arm(52, -392 + _shoulder_lift(af), af, ebf, 86, 80, 32, KURTA, 2, NANA_SKIN, st.get('hand_f', 'relax'), hand_ang=st.get('hand_ang_f'))
     g += f'<ellipse cx="47" cy="{-386 + _shoulder_lift(af)}" rx="20" ry="18" fill="{KURTA}"/>'
     g += '</g></g>'
     return g

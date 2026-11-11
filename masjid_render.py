@@ -278,11 +278,11 @@ def scene(t):
     if n.startswith('s_'):
         steps = ['s_saff', 's_nazar', 's_takbir', 's_qiyam', 's_ruku', 's_sajda', 's_jalsa']
         idx = steps.index(n)
-        pose = {0: 'stand', 1: 'stand', 2: 'takbir', 3: 'qiyam', 4: 'ruku', 5: 'sajda', 6: 'sit'}[idx]
+        pose = {0: 'stand', 1: 'stand', 2: 'takbir', 3: 'qiyam', 4: 'ruku', 5: 'sajda', 6: 'jalsa'}[idx]
         trans = ease(lt / 0.7)
         tight = (640, 790, 914, 1038)                  # shoulder to shoulder, foot to foot
         lay = ''
-        if pose in ('ruku', 'sajda'):
+        if pose in ('ruku', 'sajda', 'jalsa'):
             # side view of the same row: the far people are a little higher and to the right
             order = [(5, C.nana, 'NANA'), (2, C.zaid, 'ZAID'), (1, C.bilal, 'BILAL'), (0, C.ali, 'ALI')]
             for k, (rank, fn, w) in enumerate(order):

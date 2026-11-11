@@ -17,7 +17,7 @@ ORIG = {n: getattr(C, n) for n in NAMES}
 ORIG['bilal'] = lambda st, _a=ORIG['ali']: _a(st, C.BILAL_LOOK)     # chars2.bilal calls the (patched) module-level ali
 ORIG['zaid'] = lambda st, _a=ORIG['ali']: _a(st, C.ZAID_LOOK)
 FAST = {'talk', 'blink', 'walk', 'bob'}                 # never averaged
-STILL_POSES = {'takbir', 'qiyam', 'ruku', 'sajda'}       # salah: no sway, no head movement
+STILL_POSES = {'takbir', 'qiyam', 'ruku', 'sajda', 'jalsa'}       # salah: no sway, no head movement
 SIGMA = 2.6                                             # frames
 REACH = 6                                               # frames each side
 
