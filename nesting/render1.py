@@ -180,7 +180,7 @@ def bg(name):
     return _bg[name]
 
 
-BG_OF = {'title': 'title', 'boxes': 'room', 'namaz': 'room_masjid', 'ad': 'room', 'call': 'split', 'imran': 'hall',
+BG_OF = {'title': 'title', 'boxes': 'room', 'flashback': 'room', 'namaz': 'room_masjid', 'ad': 'room', 'call': 'split', 'imran': 'hall',
          'sidewalk': 'street', 'tour': 'hall_wide', 'memory': 'hall', 'deal': 'hall', 'next': 'hall', 'end': 'end'}
 
 
@@ -253,6 +253,20 @@ def person(who, t, sh, **kw):
     return st
 
 
+def react(i, sh, t, plan):
+    """Imran's face while Chacha talks: plan = {chacha line index: [(fraction of the line, expression), ...]}"""
+    for k, steps in plan.items():
+        b = line(sh, 'CHACHA', k)
+        if b and b['t'] <= t < b['t'] + b['d'] + 0.4:
+            f = (t - b['t']) / b['d']
+            for fr, e in steps:
+                if f >= fr: i['expr'] = e
+            if i['expr'] in ('laugh', 'happy'): i['bob'] = i.get('bob', 0) - 4 * abs(math.sin(t * 9))
+            if i['expr'] in ('surprised', 'excited'): i['head_tilt'] = i.get('head_tilt', 0) - 4
+            if i['expr'] in ('worried', 'thoughtful'): i['head_tilt'] = i.get('head_tilt', 0) + 5
+    return i
+
+
 def ear_arm(face=1):
     """front arm angles that bring a phone to the ear"""
     a, e = C._arm_to(BODY, 0, 0, BODY['sf'], (78, -500), up=False)
@@ -262,6 +276,33 @@ def ear_arm(face=1):
 def phone_up():
     a, e = C._arm_to(BODY, 0, 0, BODY['sf'], (105, -380), up=False)
     return dict(arm_f=a, elb_f=e, hold_f='phone', hold_tilt_f=-8)
+
+
+def car(x, y, wheel=0.0, sc=1.75):
+    """silver hybrid hatchback, side view facing right (x = middle, y = ground); the front bumper is dented and cracked"""
+    S2 = 'stroke="#4a3628" stroke-width="5" stroke-linejoin="round"'
+    g = f'<g transform="translate({x:.1f},{y}) scale({sc})">'
+    g += f'<ellipse cx="0" cy="-6" rx="290" ry="16" fill="#000" opacity=".18"/>'
+    body = 'M-268,-40 L-270,-112 Q-262,-150 -236,-158 Q-150,-212 -40,-214 Q40,-214 96,-170 L150,-132 Q230,-122 258,-100 L262,-70 L262,-40 Z'
+    g += f'<path d="{body}" fill="#c9ced3" {S2}/>'
+    g += f'<path d="M-222,-150 Q-150,-198 -40,-200 Q30,-200 80,-166 L120,-138 L-226,-138Z" fill="#3d4b5c" {S2}/>'   # windows
+    g += f'<path d="M-60,-200 L-56,-138 M40,-196 L52,-138" stroke="#c9ced3" stroke-width="9"/>'                    # pillars
+    g += f'<path d="M-250,-96 L240,-96" stroke="#aab1b8" stroke-width="4"/>'
+    g += f'<path d="M-40,-132 L-40,-48 M80,-132 L84,-50" stroke="#9aa2aa" stroke-width="3"/>'                       # door lines
+    g += f'<rect x="-10" y="-118" width="26" height="7" rx="3" fill="#8a929a"/><rect x="112" y="-116" width="24" height="7" rx="3" fill="#8a929a"/>'
+    g += f'<path d="M222,-112 Q248,-110 258,-98 L232,-96Z" fill="#f4f1d8" {S2}/>'                                    # headlight
+    g += f'<path d="M-268,-124 L-252,-128 L-252,-100 L-269,-100Z" fill="#d9534f" {S2}/>'                               # tail light
+    # front bumper: dented, cracked, one corner hanging down
+    g += f'<path d="M206,-70 L262,-72 L266,-38 Q250,-26 232,-30 L210,-40Z" fill="#b7bdc3" {S2}/>'
+    g += f'<path d="M226,-66 l10,10 l-8,8 l12,10" fill="none" stroke="#4a3628" stroke-width="3"/>'
+    g += f'<ellipse cx="246" cy="-54" rx="12" ry="8" fill="#8f979e" opacity=".8"/>'
+    g += f'<path d="M238,-80 l14,4 M232,-84 l10,6" stroke="#6d757c" stroke-width="2.5"/>'
+    for wx in (-165, 155):
+        g += f'<path d="M{wx-62},-40 Q{wx},-112 {wx+62},-40Z" fill="#3b3f45"/>'
+        g += f'<g transform="translate({wx},-40) rotate({wheel:.1f})"><circle r="46" fill="#24272b" {S2}/><circle r="24" fill="#b9bfc5" {S2}/>'
+        for a in range(0, 360, 72): g += f'<path d="M0,0 L0,-22" stroke="#7d848b" stroke-width="5" transform="rotate({a})"/>'
+        g += '</g>'
+    return g + '</g>'
 
 
 # ---------------------------------------------------------------- overlays
@@ -303,27 +344,40 @@ def scene(t):
         return n, cam, lay, over, texts
 
     if n == 'boxes':
-        tape = sfx_at(sh, 'tape'); roo = sfx_at(sh, 'rooster')
+        tape = sfx_at(sh, 'tape')
         st = person('CHACHA', t, sh, x=1040, y=GROUND)
-        l1 = line(sh, 'CHACHA', 0); l2 = line(sh, 'CHACHA', 1)
+        l1 = line(sh, 'CHACHA', 0); n2 = line(sh, 'N', 1)
         if t < l1['t']:                                   # narrator: Chacha proudly surveys his boxes
-            st.update(face=-1, expr='happy', arm_f=40, elb_f=60, hand_f='point', look=0.3)
-        elif t < l1['t'] + l1['d'] + 0.3:                 # "14th house... this year!"
+            st.update(face=-1, expr='naughty', arm_f=40, elb_f=60, hand_f='point', look=0.3)
+        elif t < l1['t'] + l1['d'] + 0.3:                 # "14th house... this year! He he!"
             st.update(face=1, arm_f=110 + 8 * math.sin(lt * 3), elb_f=20, hand_f='open')
-        elif tape and tape['t'] - 1.2 <= t < tape['t'] + tape['d']:  # taping another box shut
-            k = ease((t - tape['t'] + 1.2) / 0.6)
-            st.update(face=-1, x=lerp(1040, 820, (t - tape['t'] + 1.2) / 0.8), lean=24 * k, arm_f=70 + 10 * math.sin(t * 14), elb_f=20,
-                      arm_b=60, elb_b=20, expr='thoughtful', walk=None)
-        elif t < l2['t'] + l2['d'] + 0.2:                  # complaining about the window and the rooster
-            st.update(x=820, face=1, arm_f=95, elb_f=70, hand_f='point', expr=st['expr'] or 'thoughtful')
-        else:
-            st.update(x=820, face=1)
-        if roo and t >= roo['t'] - 0.1:
-            k = t - roo['t']
-            st.update(expr='surprised', bob=-40 * max(0, math.sin(min(k, 0.5) * math.pi * 2)), arm_f=150, arm_b=150, elb_f=30, elb_b=30, hand_f='open', hand_b='open')
-            over += rooster(1440, 470, 1.0, min(1, k / 0.15))
+        elif tape and t < n2['t']:                         # taping another box shut
+            k = ease((t - tape['t'] + 0.4) / 0.6)
+            st.update(face=-1, x=lerp(1040, 820, (t - tape['t'] + 0.4) / 0.8), lean=24 * k, arm_f=70 + 10 * math.sin(t * 14), elb_f=20,
+                      arm_b=60, elb_b=20, expr='thoughtful')
+        else:                                             # narrator explains his trick: he grins, rubbing his hands
+            st.update(x=820, face=1, expr='naughty', arm_f=60 + 6 * math.sin(lt * 10), elb_f=70, arm_b=60 - 6 * math.sin(lt * 10), elb_b=70,
+                      hand_f='fist', hand_b='fist', wink=1 if (lt % 2.6) > 2.2 else 0)
         lay = P.chacha(st)
         cam = (0, 1.08)
+        return n, cam, lay, over, texts
+
+    if n == 'flashback':
+        slam = sfx_at(sh, 'slam'); l1 = line(sh, 'CHACHA', 0)
+        door = (f'<rect x="1260" y="250" width="290" height="450" fill="#9a6b3f" {S}/><rect x="1290" y="280" width="230" height="180" rx="8" fill="#ac7a4a" {S}/>'
+                f'<rect x="1290" y="490" width="230" height="180" rx="8" fill="#ac7a4a" {S}/><circle cx="1300" cy="480" r="12" fill="#e2b64a" {S}/>'
+                f'<rect x="1240" y="232" width="330" height="24" fill="#7a5232" {S}/>')
+        c = person('CHACHA', t, sh, x=980, y=GROUND, face=1, expr='angry', hold_b='suitcase', arm_b=-4)
+        if t < l1['t'] + l1['d']:     # shaking his fist at the landlord's door
+            c.update(arm_f=105 + 14 * math.sin(lt * 11), elb_f=25, hand_f='fist', bob=-6 * abs(math.sin(lt * 8)))
+        elif slam:                    # storms off with his suitcase
+            k = (t - slam['t']) / 2.0
+            c.update(face=-1, x=lerp(980, 200, k), expr='angry', walk=(t * 2.2) % 1 if 0 < k < 1 else None)
+        lay = door + P.chacha(c)
+        sh_ = 0 if not slam or t < slam['t'] else max(0, 1 - (t - slam['t']) / 0.25)
+        cam = (8 * sh_ * abs(math.sin(t * 80)), 1.0)                  # the slam shakes the picture
+        over = '<rect width="1920" height="1080" fill="#7a4a1a" opacity=".22"/>'
+        texts = [('L:Pichhla ghar...', 300, 90, 52, (122, 74, 26), min(1, lt / 0.4))]
         return n, cam, lay, over, texts
 
     if n == 'namaz':
@@ -380,22 +434,42 @@ def scene(t):
         return n, cam, lay, over, texts
 
     if n == 'sidewalk':
+        carb = sfx_at(sh, 'car'); door = sfx_at(sh, 'cardoor')
         L = [b for b in sh['beats'] if b['kind'] == 'say']
-        arrive = L[0]['t'] + 0.2
-        cx = lerp(-150, 760, (t - sh['t0']) / max(0.5, arrive - sh['t0']))
-        c = person('CHACHA', t, sh, x=cx, y=GROUND, face=1, hold_b='suitcase', arm_b=-4)
-        if t < arrive: c['walk'] = (t * 1.9) % 1
-        i = person('IMRAN', t, sh, x=1180, y=GROUND, face=-1)
-        if L[0]['t'] <= t < L[0]['t'] + L[0]['d']: i.update(arm_f=60, elb_f=10, hand_f='open', arm_b=60, elb_b=10, hand_b='open')
-        if L[1]['t'] <= t < L[1]['t'] + L[1]['d']:           # paaye ka soup: stirring a pot with the free hand
-            c.update(arm_f=70 + 14 * math.sin(lt * 7), elb_f=60, hand_f='fist')
-        if L[2]['t'] <= t < L[2]['t'] + L[2]['d']: i.update(bob=-6 * abs(math.sin(lt * 9)))
-        if L[3]['t'] <= t < L[3]['t'] + L[3]['d']: c.update(lean=-8 + 4 * math.sin(lt * 5), x=cx + 30)   # leaning in, bargaining
-        if L[4]['t'] <= t < L[5]['t']: c.update(arm_f=150, elb_f=20, hand_f='point', expr='proud')       # "jawani mein computer..."
-        if L[6]['t'] - 0.1 <= t < L[6]['t'] + L[6]['d'] + 0.2:                                            # "poore kamre jitna!"
-            k = ease((t - L[6]['t']) / 0.3)
-            c.update(arm_f=lerp(20, 100, k), elb_f=5, hand_f='open', bob=-8 * abs(math.sin(lt * 8)))
-        lay = P.chacha(c) + P.imran(i)
+        hm, greet, bump, joke = L[0], L[1], L[2], L[3]
+        k = ease((t - carb['t']) / (carb['d'] - 0.1))
+        car_x = lerp(-700, 180, (t - carb['t']) / (carb['d'] - 0.1)); wheel = car_x * 0.5
+        lay = car(car_x, GROUND, wheel)
+        i = person('IMRAN', t, sh, x=1400, y=GROUND, face=-1)
+        if t < door['t']: i.update(look=-0.7, expr='surprised' if t > carb['t'] + 1 else 'neutral')
+        c = None
+        if t >= door['t']:
+            ko = (t - door['t'] - 0.15) / 0.9
+            c = person('CHACHA', t, sh, x=lerp(560, 860, ko), y=GROUND, face=1, hold_b='suitcase', arm_b=-4)
+            if 0 < ko < 1: c['walk'] = (t * 1.8) % 1
+            if t < greet['t'] + greet['d'] + 0.3:          # the long suspicious stare: house, then Imran, then house again
+                c.update(expr='thoughtful', look=0.55 * math.sin((t - door['t']) * 1.3), look_y=-0.2 - 0.2 * math.sin((t - door['t']) * 0.9),
+                         head_tilt=4 * math.sin((t - door['t']) * 1.1), talk=c['talk'])
+                c['_stare'] = 1
+                if greet['t'] <= t: i.update(expr='worried' if t > greet['t'] + greet['d'] * 0.6 else 'warm',
+                                             arm_f=60, elb_f=10, hand_f='open', arm_b=60, elb_b=10, hand_b='open')
+            if bump['t'] <= t < bump['t'] + bump['d'] + 0.2:   # Imran points at the dented bumper
+                i.update(arm_f=95, elb_f=8, hand_f='point', look=-0.8, look_y=0.4)
+            if joke['t'] <= t < joke['t'] + joke['d']: c.update(arm_f=60, elb_f=40, hand_f='point')
+            P5 = L[4:]
+            if len(P5) >= 6:
+                paya, haha, kam, comp, kaunsa, bada = P5[0], P5[1], P5[2], P5[3], P5[4], P5[5]
+                if paya['t'] <= t < paya['t'] + paya['d']: c.update(arm_f=70 + 14 * math.sin(lt * 7), elb_f=60, hand_f='fist')   # stirring the soup
+                if kam['t'] <= t < kam['t'] + kam['d']: c.update(lean=-8 + 4 * math.sin(lt * 5), x=c['x'] + 30)                     # leaning in, bargaining
+                if comp['t'] <= t < kaunsa['t']: c.update(arm_f=150, elb_f=20, hand_f='point', expr='proud')
+                if bada['t'] - 0.1 <= t < bada['t'] + bada['d'] + 0.2:
+                    kk = ease((t - bada['t']) / 0.3); c.update(arm_f=lerp(20, 100, kk), elb_f=5, hand_f='open', bob=-8 * abs(math.sin(lt * 8)))
+        react(i, sh, t, {1: [(0, 'surprised'), (0.6, 'laugh')],            # bumper joke
+                         2: [(0, 'surprised'), (0.5, 'happy')],            # paaye ka soup
+                         3: [(0, 'worried'), (0.7, 'laugh')],              # kiraya kam?
+                         4: [(0, 'surprised'), (0.6, 'excited')],          # old computer
+                         5: [(0, 'laugh')]})                               # laptops are babies
+        lay += (P.chacha(c) if c else '') + P.imran(i)
         return n, cam, lay, over, texts
 
     if n == 'tour':
@@ -416,6 +490,7 @@ def scene(t):
         c = person('CHACHA', t, sh, x=cxx, y=GROUND, face=1, hold_b='suitcase', arm_b=-4)
         if cw: c['walk'] = (t * 1.9) % 1
         if L[1]['t'] <= t < L[1]['t'] + L[1]['d']: c.update(arm_f=150, elb_f=15, hand_f='point', look=0.7)       # finger up: "alag kamra aur closet!"
+        react(i, sh, t, {0: [(0, 'surprised'), (0.6, 'thoughtful')], 1: [(0, 'worried'), (0.6, 'laugh')]})
         mid = (ix + cxx) / 2
         cam = (min(max(0, mid - 960), 2600 - W), 1.0)
         lay = P.abba_photo(1500, 330, 0.75) + P.chacha(c) + P.imran(i)
@@ -440,6 +515,7 @@ def scene(t):
         if L[1]['t'] <= t < L[1]['t'] + L[1]['d']: i.update(arm_b=80, elb_b=10, hand_b='open')
         if L[2]['t'] <= t < L[3]['t']: c.update(arm_f=150, elb_f=20, arm_b=150, elb_b=20, hand_f='open', hand_b='open', bob=-12 * abs(math.sin(lt * 6)))
         if t >= L[3]['t'] - 0.3: c.update(phone_up()); c.update(look=0.6)
+        react(i, sh, t, {0: [(0, 'thoughtful'), (0.5, 'warm')], 1: [(0, 'happy')], 2: [(0, 'surprised'), (0.5, 'laugh')]})
         if t >= L[4]['t']: i.update(expr='laugh', bob=-8 * abs(math.sin(lt * 10)), arm_f=60, elb_f=90)
         lay = P.abba_photo(1500, 330, 0.75) + P.chacha(c) + P.imran(i)
         return n, cam, lay, over, texts

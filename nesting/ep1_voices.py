@@ -87,6 +87,25 @@ def sfx(name):
             a = int(SR * (0.05 + i * 0.22)); n = int(SR * 0.09); k = np.arange(n) / SR
             y[a:a + n] += (np.sin(2 * np.pi * 120 * k) + 0.6 * np.sin(2 * np.pi * 240 * k) + 0.3 * rng.normal(0, 1, n)) * np.exp(-k * 45)
         return _w(name, y)
+    if name == 'slam':          # a door slammed hard: thump + rattle
+        y = np.zeros(int(SR * 0.9)); n = int(SR * 0.25); k = np.arange(n) / SR
+        y[:n] += (np.sin(2 * np.pi * 70 * k) + 0.5 * rng.normal(0, 1, n)) * np.exp(-k * 18)
+        for i in range(5):
+            a = int(SR * (0.18 + i * 0.06)); m = int(SR * 0.03); y[a:a + m] += 0.25 * rng.normal(0, 1, m) * np.exp(-np.arange(m) / 200)
+        return _w(name, y)
+    if name == 'car':           # a hybrid rolling up quietly: soft electric whine + tyres on the road, slowing down
+        d = 2.4; n = int(SR * d); k = np.arange(n) / SR
+        f = 900 - 500 * (k / d); whine = np.sin(2 * np.pi * np.cumsum(f) / SR) * 0.15
+        road = np.convolve(rng.normal(0, 1, n), np.ones(60) / 60, 'same') * 1.2
+        env = np.minimum(1, k / 0.5) * np.clip((d - k) / 0.6, 0, 1) ** 0.7
+        y = (whine + road) * env
+        a = int(SR * (d - 0.35)); y[a:a + 2400] += rng.normal(0, 1, 2400) * np.exp(-np.arange(2400) / 600) * 0.4   # little brake squeak/stop
+        return _w(name, y)
+    if name == 'cardoor':       # car door: click + thunk
+        y = np.zeros(int(SR * 0.6)); y[:300] += rng.normal(0, 1, 300) * np.exp(-np.arange(300) / 60) * 0.6
+        a = int(SR * 0.25); n = int(SR * 0.2); k = np.arange(n) / SR
+        y[a:a + n] += (np.sin(2 * np.pi * 95 * k) + 0.4 * rng.normal(0, 1, n)) * np.exp(-k * 25)
+        return _w(name, y)
     raise KeyError(name)
 
 

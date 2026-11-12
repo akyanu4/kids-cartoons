@@ -45,6 +45,7 @@ EXPR = {
     'worried':    dict(raise_=0.35, tilt=0.8, open=1.0, squint=0.0, curve=-0.45, mopen=0.05, wavy=True),
     'tired':      dict(raise_=-0.2, tilt=0.35, open=0.55, squint=0.0, curve=-0.2, mopen=0.3),
     'thoughtful': dict(raise_=0.3, tilt=-0.2, open=0.9, squint=0.15, curve=0.15, mopen=0.0, look_y=-0.7, side=True),
+    'angry':      dict(raise_=-0.3, tilt=-0.9, open=1.05, squint=0.2, curve=-0.7, mopen=0.25),
     'naughty':    dict(raise_=0.35, tilt=-0.25, open=0.85, squint=0.4, curve=1.0, mopen=0.1, side=True),   # cheeky: one brow up, sly smile
 }
 
