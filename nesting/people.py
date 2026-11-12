@@ -14,9 +14,9 @@ import chars2 as C
 from chars2 import SW, shade, arm, leg, face, ex, gait, apply_pose, _arms_state, _shoulder_lift
 
 CHACHA = dict(skin='#C98E62', kameez='#d7dde0', kameez_d='#b9c2c6', vest='#7a5232', pants='#d7dde0', shoe='#4a3426',
-              hair='bald', facial='moustache', glasses='square', kind='nana', outfit='kameez')
+              hair='bald', facial='none', glasses='square', kind='nana', outfit='kameez', broad=1.2)
 IMRAN = dict(skin='#BF845A', shirt='#8fc1e8', shirt_d='#6fa3cc', pants='#434b58', shoe='#2b2b2b', belt='#5a3b25',
-             hair='short', facial='beard', glasses='rect', kind='ali', outfit='shirt')
+             hair='short', facial='none', glasses='rect', kind='ali', outfit='shirt')
 
 
 def _head(L, st, hy):
@@ -38,10 +38,12 @@ def _head(L, st, hy):
     g += f'<g transform="translate(0,{hy+2})">' + face(62, st, L['kind'])
     fx = 62 * 0.14
     talk = st.get('talk', 0) + ex(st.get('expr'))['mopen'] * .55; jaw = min(talk, 1) * 8
-    if L['facial'] == 'moustache':   # big grey handlebar moustache
+    if L['facial'] == 'none':   # clean-shaven: a soft chin line
+        g += f'<path d="M-16,{70} Q0,{76} 16,{70}" fill="none" stroke="#3b2a20" stroke-width="2.5" opacity=".3"/>'
+    elif L['facial'] == 'moustache':   # big grey handlebar moustache
         g += (f'<path d="M{fx-6},18 Q{fx-30},12 {fx-46},26 Q{fx-54},34 {fx-50},40 Q{fx-40},30 {fx-26},32 Q{fx-12},30 {fx},24 '
               f'Q{fx+12},30 {fx+26},32 Q{fx+40},30 {fx+50},40 Q{fx+54},34 {fx+46},26 Q{fx+30},12 {fx+6},18 Q{fx},16 {fx-6},18Z" fill="#d9d6d0" {SW(3.5)}/>')
-    else:   # neat short black beard along the jaw + moustache
+    elif L['facial'] == 'beard':   # neat short black beard along the jaw + moustache
         g += (f'<path d="M-57,16 Q-56,{58+jaw} -20,{76+jaw} Q{fx},{84+jaw} 34,{76+jaw} Q60,{58+jaw} 59,16 Q56,40 42,{50+jaw*.5} '
               f'Q{fx},{62+jaw*.8} -28,{50+jaw*.5} Q-52,40 -57,16Z" fill="#2b201a" opacity=".88" {SW(2.5)}/>')
         g += f'<path d="M{fx-22},20 Q{fx},14 {fx+22},20 Q{fx},23 {fx-22},20Z" fill="#2b201a" {SW(2)}/>'
@@ -94,7 +96,9 @@ def person(st, L):
         g += f'<rect x="38" y="-362" width="6" height="18" rx="2" fill="#2d5aa8"/>'                                           # pen
     hy = -488
     g += f'<rect x="-17" y="-438" width="34" height="26" fill="{shade(sk,.88)}"/>'
-    g += f'<g transform="rotate({st.get("head_tilt",0)},0,-420)">' + _head(L, st, hy) + '</g>'
+    bw = L.get('broad', 1.0)
+    g += (f'<g transform="rotate({st.get("head_tilt",0)},0,-420)"><g transform="translate(0,{hy}) scale({bw},1) translate(0,{-hy})">'
+          + _head(L, st, hy) + '</g></g>')
     if st.get('arms_front'): g += back_arm(False)
     g += arm(52, -392 + _shoulder_lift(af), af, ebf, 86, 80, 32, top, 2, sk, st.get('hand_f', 'relax'),
              hand_ang=st.get('hand_ang_f'), holding=st.get('hold_f'), hold_tilt=st.get('hold_tilt_f', 0))
