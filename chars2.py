@@ -243,11 +243,19 @@ def arm(sx, sy, ang, bend, L1, L2, w, sleeve, sleeve_len, skin, pose, back=False
         s += capsule([(sx, sy), (mx, my)], w * 1.25, sl)
     if holding == 'bottle':
         s += bottle(wx, wy, fa, hold_tilt)
-    s += hand(wx, wy, fa if hand_ang is None else hand_ang, w * 0.95, 'hold' if holding else pose, skin, back)
+    elif holding == 'phone':     # a smartphone held up in the hand, screen facing the viewer
+        s += (f'<g transform="translate({wx:.1f},{wy:.1f}) rotate({hold_tilt:.1f})"><rect x="-17" y="-40" width="34" height="60" rx="7" fill="#22252b" {SW(4)}/>'
+              f'<rect x="-13" y="-35" width="26" height="46" rx="3" fill="#7fd3ff"/><rect x="-11" y="-31" width="22" height="9" rx="2" fill="#fff" opacity=".7"/></g>')
+    elif holding == 'suitcase':  # a suitcase hanging from the hand
+        s += (f'<g transform="translate({wx:.1f},{wy:.1f})"><path d="M-14,4 L-14,-8 Q0,-18 14,-8 L14,4" fill="none" {SW(6)}/>'
+              f'<rect x="-62" y="4" width="124" height="96" rx="12" fill="#a0522d" {SW(5)}/><rect x="-62" y="38" width="124" height="10" fill="#7a3b1e"/>'
+              f'<rect x="-30" y="0" width="10" height="100" fill="#d9b26a" opacity=".85"/><rect x="20" y="0" width="10" height="100" fill="#d9b26a" opacity=".85"/></g>')
+    s += hand(wx, wy, fa if hand_ang is None else hand_ang, w * 0.95, 'hold' if holding in ('bottle', 'suitcase') else pose, skin, back)
     return s
 
 
 def leg(hx, hy, ang, knee, L1, L2, w, pants, shoe, back=False, foot=None):
+    if foot == 'front': back = False          # facing the viewer: both legs are seen equally, same colours
     kx, ky = pt(hx, hy, ang, L1)
     sa = ang - knee                              # shin bends backward
     ax, ay = pt(kx, ky, sa, L2)
@@ -447,7 +455,7 @@ def ali(st, look=None):
     RED, PANTS, SHOE, ALI_SKIN_ = L['shirt'], L['pants'], L['shoe'], L['skin']
     g = f'<g transform="translate({x},{y + bob*s}) scale({s*f},{s})">'
     # legs (hip at -150)
-    g += leg(-15, -150, lB, kB, 70, 68, 36, PANTS, shade(SHOE,.88), back=True, foot=st.get('foot_b', st.get('foot')))
+    g += leg(-15, -150, lB, kB, 70, 68, 36, PANTS, SHOE, back=True, foot=st.get('foot_b', st.get('foot')))
     g += f'<g transform="rotate({lean},0,-150)">'
     if not st.get('arms_front'): g += arm(-40, -280 + _shoulder_lift(ab), ab, ebb, 60, 56, 27, RED, .45, ALI_SKIN_, st.get('hand_b', 'relax'), back=True, hand_ang=st.get('hand_ang_b'))
     g += '</g>'
@@ -495,7 +503,7 @@ def maryam(st):
     af, ebf, ab, ebb = _arms_state(st, sw, None)
     DRESS, SCARF = '#E86FA0', '#8E7CC3'
     g = f'<g transform="translate({x},{y + bob*s}) scale({s*f},{s})">'
-    g += leg(-13, -140, lB, kB, 66, 64, 30, '#f6d7e6', '#b8325f', back=True, foot=st.get('foot_b', st.get('foot')))
+    g += leg(-13, -140, lB, kB, 66, 64, 30, '#f6d7e6', '#c0396b', back=True, foot=st.get('foot_b', st.get('foot')))
     g += f'<g transform="rotate({lean},0,-140)">' + ('' if st.get('arms_front') else arm(-36, -272 + _shoulder_lift(ab), ab, ebb, 56, 52, 24, DRESS, 2, MAR_SKIN, st.get('hand_b', 'relax'), back=True, hand_ang=st.get('hand_ang_b'))) + '</g>'
     g += leg(13, -140, lA, kA, 66, 64, 30, '#f6d7e6', '#c0396b', foot=st.get('foot'))
     g += f'<g transform="rotate({lean},0,-140)">'
@@ -526,7 +534,7 @@ def nana(st):
     af, ebf, ab, ebb = _arms_state(st, sw, None)
     KURTA, KD = '#f8f8f4', '#dcdcd2'
     g = f'<g transform="translate({x},{y + bob*s}) scale({s*f},{s})">'
-    g += leg(-17, -175, lB, kB, 84, 84, 38, '#ecebe3', '#6b4a30', back=True, foot=st.get('foot_b', st.get('foot')))
+    g += leg(-17, -175, lB, kB, 84, 84, 38, '#f3f2ea', '#6b4a30', back=True, foot=st.get('foot_b', st.get('foot')))
     g += f'<g transform="rotate({lean},0,-175)">' + ('' if st.get('arms_front') else arm(-50, -392 + _shoulder_lift(ab), ab, ebb, 86, 80, 32, KURTA, 2, NANA_SKIN, st.get('hand_b', 'relax'), back=True, hand_ang=st.get('hand_ang_b'))) + '</g>'
     g += leg(17, -175, lA, kA, 84, 84, 38, '#f3f2ea', '#6b4a30', foot=st.get('foot'))
     g += f'<g transform="rotate({lean},0,-175)">'

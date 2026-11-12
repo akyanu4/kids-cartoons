@@ -33,6 +33,13 @@ def _wrap(n):
     return f
 
 
+def register(mod, n, kind='nana'):
+    """add a character drawn by mod.<n>(st) (e.g. Nesting Stories people) to the motion layer; call before install()"""
+    global NAMES
+    if n in ORIG: return
+    ORIG[n] = getattr(mod, n); KIND[n] = kind; NAMES = NAMES + (n,); setattr(mod, n, _wrap(n))
+
+
 def install(mod):
     """patch chars2 and the render module so scene() records characters instead of drawing them"""
     global _M

@@ -5,3 +5,5 @@ models/
 __pycache__/
 build_3d/
 voices_ms/
+nesting/voices_ep1/
+build_nesting1/
