@@ -14,9 +14,9 @@ import chars2 as C
 from chars2 import SW, shade, arm, leg, face, ex, gait, apply_pose, _arms_state, _shoulder_lift
 
 CHACHA = dict(skin='#C98E62', kameez='#d7dde0', kameez_d='#b9c2c6', vest='#7a5232', pants='#d7dde0', shoe='#4a3426',
-              hair='bald', facial='none', glasses='square', kind='nana', outfit='kameez', broad=1.2)
+              hair='bald', facial='none', glasses=None, kind='nana', outfit='kameez', broad=1.2)
 IMRAN = dict(skin='#BF845A', shirt='#8fc1e8', shirt_d='#6fa3cc', pants='#434b58', shoe='#2b2b2b', belt='#5a3b25',
-             hair='short', facial='none', glasses='rect', kind='ali', outfit='shirt')
+             hair='short', facial='none', glasses=None, kind='ali', outfit='shirt')
 
 
 def _head(L, st, hy):
@@ -47,16 +47,17 @@ def _head(L, st, hy):
         g += (f'<path d="M-57,16 Q-56,{58+jaw} -20,{76+jaw} Q{fx},{84+jaw} 34,{76+jaw} Q60,{58+jaw} 59,16 Q56,40 42,{50+jaw*.5} '
               f'Q{fx},{62+jaw*.8} -28,{50+jaw*.5} Q-52,40 -57,16Z" fill="#2b201a" opacity=".88" {SW(2.5)}/>')
         g += f'<path d="M{fx-22},20 Q{fx},14 {fx+22},20 Q{fx},23 {fx-22},20Z" fill="#2b201a" {SW(2)}/>'
-    for sx in (-1, 1):
-        cx = fx + sx * 62 * .36 * (0.92 if sx < 0 else 1)
-        if L['glasses'] == 'square':
-            g += f'<rect x="{cx-22}" y="-24" width="44" height="34" rx="8" fill="url(#glass)" stroke="#161210" stroke-width="7"/>'
-        else:
-            g += f'<rect x="{cx-21}" y="-20" width="42" height="28" rx="6" fill="url(#glass)" stroke="#2a2a2e" stroke-width="3.5"/>'
-    l, r_ = fx - 62 * .36 * .92 + 22, fx + 62 * .36 - 22
-    w = 7 if L['glasses'] == 'square' else 3.5
-    g += f'<path d="M{l},-12 Q{(l+r_)/2},-18 {r_},-12" fill="none" stroke="#161210" stroke-width="{w-1}"/>'
-    g += f'<path d="M{fx + 62*.36 + 22},-14 L60,-10" stroke="#161210" stroke-width="{w-1}"/>'
+    if L['glasses']:
+        for sx in (-1, 1):
+            cx = fx + sx * 62 * .36 * (0.92 if sx < 0 else 1)
+            if L['glasses'] == 'square':
+                g += f'<rect x="{cx-22}" y="-24" width="44" height="34" rx="8" fill="url(#glass)" stroke="#161210" stroke-width="7"/>'
+            else:
+                g += f'<rect x="{cx-21}" y="-20" width="42" height="28" rx="6" fill="url(#glass)" stroke="#2a2a2e" stroke-width="3.5"/>'
+        l, r_ = fx - 62 * .36 * .92 + 22, fx + 62 * .36 - 22
+        w = 7 if L['glasses'] == 'square' else 3.5
+        g += f'<path d="M{l},-12 Q{(l+r_)/2},-18 {r_},-12" fill="none" stroke="#161210" stroke-width="{w-1}"/>'
+        g += f'<path d="M{fx + 62*.36 + 22},-14 L60,-10" stroke="#161210" stroke-width="{w-1}"/>'
     return g + '</g>'
 
 
