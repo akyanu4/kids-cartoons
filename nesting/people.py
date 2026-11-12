@@ -24,10 +24,10 @@ def _head(L, st, hy):
     if L['hair'] == 'short':   # back hair mass behind the head
         g += f'<path d="M-64,{hy+4} Q-70,{hy-70} 0,{hy-84} Q70,{hy-70} 64,{hy+4} Z" fill="#1c1410" {SW(4)}/>'
     g += f'<ellipse cx="-58" cy="{hy+6}" rx="13" ry="18" fill="{shade(sk,.94)}" {SW(4)}/><ellipse cx="62" cy="{hy+6}" rx="12" ry="17" fill="{sk}" {SW(4)}/>'
-    if L.get('shape') == 'square':   # long, square face: straight cheeks, wide flat jaw, tall forehead
-        g += (f'<path d="M-60,{hy-30} L-60,{hy+60} Q-60,{hy+96} -26,{hy+100} L28,{hy+100} Q62,{hy+96} 62,{hy+60} L62,{hy-30} '
-              f'Q60,{hy-96} 0,{hy-98} Q-58,{hy-96} -60,{hy-30}Z" fill="{sk}" {SW()}/>')
-        g += f'<path d="M-22,{hy+88} Q0,{hy+94} 24,{hy+88}" fill="none" stroke="#3b2a20" stroke-width="2.5" opacity=".3"/>'
+    if L.get('shape') == 'square':   # long face, a little squarish at the jaw, with soft rounded corners
+        g += (f'<path d="M-60,{hy-24} Q-62,{hy+44} -52,{hy+72} Q-40,{hy+98} 0,{hy+100} Q40,{hy+98} 54,{hy+72} Q64,{hy+44} 62,{hy-24} '
+              f'Q60,{hy-94} 0,{hy-96} Q-58,{hy-94} -60,{hy-24}Z" fill="{sk}" {SW()}/>')
+        g += f'<path d="M-20,{hy+86} Q0,{hy+92} 22,{hy+86}" fill="none" stroke="#3b2a20" stroke-width="2.5" opacity=".28"/>'
     else:
         g += f'<path d="M-60,{hy-10} Q-62,{hy+56} -30,{hy+74} Q0,{hy+86} 32,{hy+74} Q64,{hy+56} 62,{hy-10} Q58,{hy-74} 0,{hy-76} Q-58,{hy-74} -60,{hy-10}Z" fill="{sk}" {SW()}/>'
     if L['hair'] == 'bald':   # shiny dome, grey tufts over the ears, a few wisps on top
