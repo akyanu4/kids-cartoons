@@ -45,6 +45,7 @@ EXPR = {
     'worried':    dict(raise_=0.35, tilt=0.8, open=1.0, squint=0.0, curve=-0.45, mopen=0.05, wavy=True),
     'tired':      dict(raise_=-0.2, tilt=0.35, open=0.55, squint=0.0, curve=-0.2, mopen=0.3),
     'thoughtful': dict(raise_=0.3, tilt=-0.2, open=0.9, squint=0.15, curve=0.15, mopen=0.0, look_y=-0.7, side=True),
+    'naughty':    dict(raise_=0.35, tilt=-0.25, open=0.85, squint=0.4, curve=1.0, mopen=0.1, side=True),   # cheeky: one brow up, sly smile
 }
 
 
@@ -72,7 +73,9 @@ def face(r, st, kind):
     for sx in (-1, 1):
         cx = fx + sx * exs * (0.92 if sx < 0 else 1.0)   # far eye a bit closer (3/4 view)
         wq = ew * (0.9 if sx < 0 else 1.0)
-        if e.get('closed') or openv < 0.12:
+        if st.get('wink') and sx < 0 and not e.get('closed'):   # a cheeky wink with the far eye
+            s += f'<path d="M{cx-wq},{ey} Q{cx},{ey-r*.09} {cx+wq},{ey}" fill="none" {SW(5)}/>'
+        elif e.get('closed') or openv < 0.12:
             curve = -r * .09 if e.get('closed') else r * .03
             s += f'<path d="M{cx-wq},{ey} Q{cx},{ey+curve} {cx+wq},{ey}" fill="none" {SW(4.5)}/>'
             if kind == 'maryam':

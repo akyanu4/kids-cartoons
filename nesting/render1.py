@@ -99,9 +99,36 @@ def hall_bg(w, door=True):
     s += f'<rect x="1150" y="520" width="520" height="120" rx="40" fill="#3f8f8a" {S}/><rect x="1120" y="600" width="580" height="110" rx="30" fill="#4aa39d" {S}/>'
     s += f'<rect x="1100" y="560" width="70" height="150" rx="30" fill="#3f8f8a" {S}/><rect x="1650" y="560" width="70" height="150" rx="30" fill="#3f8f8a" {S}/>'
     s += f'<rect x="1250" y="560" width="90" height="70" rx="20" fill="#f2c45f" {S}/>'
+    if w > 2000:   # the far end of the hall: a closet and the door to a side room
+        s += f'<rect x="2030" y="230" width="300" height="470" rx="10" fill="#b07d4e" {S}/><path d="M2180,240 L2180,690" stroke="#4a3628" stroke-width="6"/>'
+        s += f'<circle cx="2160" cy="470" r="9" fill="#e2b64a"/><circle cx="2200" cy="470" r="9" fill="#e2b64a"/>'
+        s += f'<rect x="2120" y="190" width="120" height="34" rx="8" fill="#fff" {S}/><text x="2180" y="215" font-family="Poppins" font-weight="700" font-size="22" fill="#4a3628" text-anchor="middle">Closet</text>'
+        s += f'<rect x="2400" y="250" width="180" height="450" fill="#3b2a20" {S}/>'
     # plant + lamp
     s += f'<path d="M1780,700 L1760,600 L1860,600 L1840,700Z" fill="#c76b4a" {S}/>'
     for a in (-40, -15, 10, 35): s += f'<path d="M1810,600 Q{1810+a*2},{480} {1810+a*3},{440}" fill="none" stroke="#3c8a4a" stroke-width="16" stroke-linecap="round"/>'
+    return s
+
+
+def street(w):
+    """outside Imran's house: sky, house front, small lawn, sidewalk, road"""
+    s = f'<rect width="{w}" height="{H}" fill="#bfe3f5"/>'
+    for cx, cy in ((300, 140), (1100, 90), (1650, 170)): s += f'<ellipse cx="{cx}" cy="{cy}" rx="110" ry="36" fill="#fff" opacity=".9"/>'
+    s += f'<rect y="560" width="{w}" height="200" fill="#9fcf7a"/>'
+    # house front on the right
+    s += f'<rect x="1080" y="250" width="760" height="470" fill="#f2e3c6" {S}/><path d="M1040,262 L1460,90 L1880,262Z" fill="#c4553f" {S}/>'
+    s += f'<rect x="1380" y="470" width="150" height="250" rx="6" fill="#8a5a33" {S}/><circle cx="1505" cy="600" r="9" fill="#e2b64a"/>'
+    for x in (1150, 1640): s += f'<rect x="{x}" y="340" width="150" height="130" fill="#bfe3f5" {S}/><path d="M{x+75},340 L{x+75},470 M{x},405 L{x+150},405" stroke="#4a3628" stroke-width="6"/>'
+    s += f'<rect x="1360" y="712" width="190" height="22" fill="#d9cdb6" {S}/><rect x="1340" y="732" width="230" height="22" fill="#cfc2a8" {S}/>'
+    s += f'<rect x="1420" y="300" width="70" height="40" rx="6" fill="#fff" {S}/><text x="1455" y="330" font-family="Poppins" font-weight="700" font-size="26" fill="#4a3628" text-anchor="middle">22</text>'
+    # tree + lamp post on the left
+    s += f'<rect x="250" y="380" width="44" height="380" fill="#8a5a33" {S}/>'
+    for cx, cy, r in ((272, 330, 130), (190, 400, 90), (360, 400, 95)): s += f'<circle cx="{cx}" cy="{cy}" r="{r}" fill="#5fa35a" {S}/>'
+    s += f'<rect x="760" y="300" width="14" height="460" fill="#3f4652"/><rect x="735" y="280" width="64" height="30" rx="8" fill="#3f4652"/><ellipse cx="767" cy="312" rx="22" ry="8" fill="#fff3b0"/>'
+    # sidewalk with slab joints, curb, road
+    s += f'<rect y="760" width="{w}" height="290" fill="#d6d3cc"/>'
+    for x in range(0, w, 240): s += f'<path d="M{x},760 L{x-60},1040" stroke="#b5b1a8" stroke-width="5"/>'
+    s += f'<rect y="1040" width="{w}" height="16" fill="#9e9a92"/><rect y="1056" width="{w}" height="40" fill="#5a5f66"/>'
     return s
 
 
@@ -135,6 +162,8 @@ def bg_svg(name):
     if name == 'room': return W, room(W)
     if name == 'room_masjid': return W, room(W, 'masjid')
     if name == 'hall': return W, hall_bg(W)
+    if name == 'hall_wide': return 2600, hall_bg(2600)
+    if name == 'street': return W, street(W)
     if name == 'split':
         return W, nested(room(W), 0, 955, 700) + nested(office(W), 965, 955, 0) + f'<rect x="952" y="0" width="16" height="{H}" fill="#3b2a20"/>'
     raise KeyError(name)
@@ -152,7 +181,7 @@ def bg(name):
 
 
 BG_OF = {'title': 'title', 'boxes': 'room', 'namaz': 'room_masjid', 'ad': 'room', 'call': 'split', 'imran': 'hall',
-         'arrive': 'hall', 'memory': 'hall', 'deal': 'hall', 'next': 'hall', 'end': 'end'}
+         'sidewalk': 'street', 'tour': 'hall_wide', 'memory': 'hall', 'deal': 'hall', 'next': 'hall', 'end': 'end'}
 
 
 # ---------------------------------------------------------------- timing helpers
@@ -210,13 +239,16 @@ def talk(m): return min(1.0, m * 1.1)
 
 
 EMO2EXPR = {'playful': 'happy', 'neutral': 'neutral'}
+WINK = 0.9    # seconds of wink at the end of each naughty Chacha line ("He he!")
 
 
 def person(who, t, sh, **kw):
     """state for CHACHA / IMRAN with talking mouth and the emotion of the current line"""
     st = dict(s=1.0, face=1, blink=0, talk=talk(mouth(t, who)), expr='neutral')
     b = says(sh, t, who)
-    if b: st['expr'] = EMO2EXPR.get(b['emo'], b['emo'])
+    if b:
+        st['expr'] = EMO2EXPR.get(b['emo'], b['emo'])
+        if b['emo'] == 'naughty' and t > b['t'] + b['d'] - WINK: st['wink'] = 1
     st.update(kw)
     return st
 
@@ -347,23 +379,50 @@ def scene(t):
         cam = (0, 1.0)
         return n, cam, lay, over, texts
 
-    if n == 'arrive':
-        knock = sfx_at(sh, 'knock'); l1 = line(sh, 'CHACHA', 0)
-        i = person('IMRAN', t, sh, x=1250, y=GROUND, face=-1)
-        k = (t - (l1['t'] - 0.3)) / 2.2 if l1 else 0
-        cx = lerp(150, 700, k)
-        c = person('CHACHA', t, sh, x=cx, y=GROUND, face=1, hold_f='suitcase', arm_f=6)
-        if 0 < k < 1: c['walk'] = (t * 1.6) % 1
-        if knock and t < knock['t'] + knock['d']: c = None; i.update(look=-0.8, expr='surprised')
-        if says(sh, t, 'IMRAN'): i.update(arm_f=70, elb_f=10, hand_f='open', arm_b=70, elb_b=10, hand_b='open')
-        door_open = c is not None
-        lay = P.abba_photo(1500, 330, 0.75)
-        if door_open: lay += f'<rect x="120" y="250" width="270" height="450" fill="#3b2a20"/><path d="M120,250 L60,230 L60,720 L120,700Z" fill="#9a6b3f" {S}/>'
-        lay += (P.chacha(c) if c else '') + P.imran(i)
+    if n == 'sidewalk':
+        L = [b for b in sh['beats'] if b['kind'] == 'say']
+        arrive = L[0]['t'] + 0.2
+        cx = lerp(-150, 760, (t - sh['t0']) / max(0.5, arrive - sh['t0']))
+        c = person('CHACHA', t, sh, x=cx, y=GROUND, face=1, hold_b='suitcase', arm_b=-4)
+        if t < arrive: c['walk'] = (t * 1.9) % 1
+        i = person('IMRAN', t, sh, x=1180, y=GROUND, face=-1)
+        if L[0]['t'] <= t < L[0]['t'] + L[0]['d']: i.update(arm_f=60, elb_f=10, hand_f='open', arm_b=60, elb_b=10, hand_b='open')
+        if L[1]['t'] <= t < L[1]['t'] + L[1]['d']:           # paaye ka soup: stirring a pot with the free hand
+            c.update(arm_f=70 + 14 * math.sin(lt * 7), elb_f=60, hand_f='fist')
+        if L[2]['t'] <= t < L[2]['t'] + L[2]['d']: i.update(bob=-6 * abs(math.sin(lt * 9)))
+        if L[3]['t'] <= t < L[3]['t'] + L[3]['d']: c.update(lean=-8 + 4 * math.sin(lt * 5), x=cx + 30)   # leaning in, bargaining
+        if L[4]['t'] <= t < L[5]['t']: c.update(arm_f=150, elb_f=20, hand_f='point', expr='proud')       # "jawani mein computer..."
+        if L[6]['t'] - 0.1 <= t < L[6]['t'] + L[6]['d'] + 0.2:                                            # "poore kamre jitna!"
+            k = ease((t - L[6]['t']) / 0.3)
+            c.update(arm_f=lerp(20, 100, k), elb_f=5, hand_f='open', bob=-8 * abs(math.sin(lt * 8)))
+        lay = P.chacha(c) + P.imran(i)
+        return n, cam, lay, over, texts
+
+    if n == 'tour':
+        L = [b for b in sh['beats'] if b['kind'] == 'say']
+        s0 = sh['t0']
+        def walk_x(t, path):            # path: [(time, x)], walking between the points
+            for (ta, xa), (tb, xb) in zip(path, path[1:]):
+                if ta <= t < tb: return xa + (xb - xa) * (t - ta) / (tb - ta), True
+            return (path[0][1] if t < path[0][0] else path[-1][1]), False
+        ipath = [(s0, 650), (L[0]['t'] + L[0]['d'] * 0.85, 1450), (L[2]['t'], 1450), (L[2]['t'] + 1.8, 2050)]
+        cpath = [(s0 + 0.6, 300), (L[0]['t'] + L[0]['d'] + 0.4, 1050), (L[2]['t'] + 0.5, 1050), (L[2]['t'] + 2.4, 1650)]
+        ix, iw = walk_x(t, ipath); cxx, cw = walk_x(t, cpath)
+        i = person('IMRAN', t, sh, x=ix, y=GROUND, face=1)
+        if iw: i['walk'] = (t * 1.7) % 1
+        if not iw: i['face'] = -1
+        if not iw and says(sh, t, 'IMRAN'): i.update(arm_b=75, elb_b=10, hand_b='open')
+        if t >= L[2]['t'] + 1.8 and says(sh, t, 'IMRAN'): i.update(face=1, arm_f=95, elb_f=5, hand_f='point')   # points at the closet
+        c = person('CHACHA', t, sh, x=cxx, y=GROUND, face=1, hold_b='suitcase', arm_b=-4)
+        if cw: c['walk'] = (t * 1.9) % 1
+        if L[1]['t'] <= t < L[1]['t'] + L[1]['d']: c.update(arm_f=150, elb_f=15, hand_f='point', look=0.7)       # finger up: "alag kamra aur closet!"
+        mid = (ix + cxx) / 2
+        cam = (min(max(0, mid - 960), 2600 - W), 1.0)
+        lay = P.abba_photo(1500, 330, 0.75) + P.chacha(c) + P.imran(i)
         return n, cam, lay, over, texts
 
     if n == 'memory':
-        c = person('CHACHA', t, sh, x=600, y=GROUND, face=1, hold_f='suitcase', expr='happy')
+        c = person('CHACHA', t, sh, x=600, y=GROUND, face=1, hold_b='suitcase', arm_b=-4, expr='happy')
         i = person('IMRAN', t, sh, x=1150, y=GROUND, face=1, expr='gentle')
         l1 = line(sh, 'IMRAN', 0); glow = ease(lt / 1.2)
         if t < l1['t']: i.update(face=1, look=0.6, look_y=-0.3, head_tilt=-4)     # looks up at Abba's photo
@@ -377,19 +436,18 @@ def scene(t):
     if n == 'deal':
         c = person('CHACHA', t, sh, x=650, y=GROUND, face=1, expr='happy')
         i = person('IMRAN', t, sh, x=1150, y=GROUND, face=-1, expr='warm')
-        L = [line(sh, 'IMRAN', 0), line(sh, 'CHACHA', 0), line(sh, 'IMRAN', 1), line(sh, 'CHACHA', 1), line(sh, 'CHACHA', 2), line(sh, 'IMRAN', 2)]
-        if L[0]['t'] <= t < L[0]['t'] + L[0]['d']: i.update(arm_b=80, elb_b=10, hand_b='open', face=-1)       # "poora hall aapka"
-        if t >= L[1]['t']: c.update(expr='surprised' if t < L[3]['t'] else c['expr'])
-        if L[3]['t'] <= t < L[4]['t']: c.update(arm_f=150, elb_f=20, arm_b=150, elb_b=20, hand_f='open', hand_b='open', bob=-12 * abs(math.sin(lt * 6)))
-        if t >= L[4]['t'] - 0.3: c.update(phone_up()); c.update(expr='happy', look=0.6)
-        if t >= L[5]['t']: i.update(expr='laugh', bob=-8 * abs(math.sin(lt * 10)), arm_f=60, elb_f=90)
+        L = [line(sh, 'CHACHA', 0), line(sh, 'IMRAN', 0), line(sh, 'CHACHA', 1), line(sh, 'CHACHA', 2), line(sh, 'IMRAN', 1)]
+        if L[1]['t'] <= t < L[1]['t'] + L[1]['d']: i.update(arm_b=80, elb_b=10, hand_b='open')
+        if L[2]['t'] <= t < L[3]['t']: c.update(arm_f=150, elb_f=20, arm_b=150, elb_b=20, hand_f='open', hand_b='open', bob=-12 * abs(math.sin(lt * 6)))
+        if t >= L[3]['t'] - 0.3: c.update(phone_up()); c.update(look=0.6)
+        if t >= L[4]['t']: i.update(expr='laugh', bob=-8 * abs(math.sin(lt * 10)), arm_f=60, elb_f=90)
         lay = P.abba_photo(1500, 330, 0.75) + P.chacha(c) + P.imran(i)
         return n, cam, lay, over, texts
 
     if n == 'next':
         c = person('CHACHA', t, sh, x=1000, y=GROUND, face=1, expr='happy')
         c.update(phone_up()); c['look'] = 0.6
-        l2 = line(sh, 'N', 1)
+        l2 = line(sh, 'N', 0)
         lay = box(500, 1000 - LIFT + 120, 200, 140, 'Saamaan') + P.chacha(c)
         if l2 and t > l2['t'] + l2['d'] * 0.6:
             a = ease((t - l2['t'] - l2['d'] * 0.6) / 0.4)

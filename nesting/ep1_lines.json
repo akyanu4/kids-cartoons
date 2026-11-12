@@ -1,191 +1,226 @@
 [
 {
-"id": "ns1_001",
+"id": "ns1b_001",
 "who": "N",
 "emo": "playful",
-"roman": "Yeh hain Rasheed Chacha. Umar bahattar saal. Aur shauq? Ghar badalna!",
-"text": "یہ ہیں رشید چچا۔ عمر بہتّر سال۔ اور شوق؟ گھر بدلنا!"
+"roman": "Yeh hain Rasheed Chacha. Umar bahattar saal. Shauq? Ghar badalna... aur har ghar mein thodi si shararat!",
+"text": "یہ ہیں رشید چچا۔ عمر بہتّر سال۔ شوق؟ گھر بدلنا... اور ہر گھر میں تھوڑی سی شرارت!"
 },
 {
-"id": "ns1_002",
+"id": "ns1b_002",
 "who": "CHACHA",
-"emo": "happy",
-"roman": "Yeh mera chaudahvaan ghar hai... sirf is saal ka!",
-"text": "یہ میرا چودہواں گھر ہے... صرف اس سال کا!"
+"emo": "naughty",
+"roman": "Yeh mera chaudahvaan ghar hai... sirf is saal ka! He he!",
+"text": "یہ میرا چودہواں گھر ہے... صرف اس سال کا! ہی ہی!"
 },
 {
-"id": "ns1_003",
-"who": "N",
-"emo": "neutral",
-"roman": "Har do hafte baad, Chacha ka saamaan phir se dabbon mein band ho jaata hai.",
-"text": "ہر دو ہفتے بعد، چچا کا سامان پھر سے ڈبوں میں بند ہو جاتا ہے۔"
-},
-{
-"id": "ns1_004",
+"id": "ns1b_003",
 "who": "CHACHA",
 "emo": "thoughtful",
-"roman": "Yeh ghar bhi theek nahin. Khidki chhoti hai, aur padosi ka murgha subah paanch baje bolta hai!",
-"text": "یہ گھر بھی ٹھیک نہیں۔ کھڑکی چھوٹی ہے، اور پڑوسی کا مرغا صبح پانچ بجے بولتا ہے!"
+"roman": "Yeh ghar bhi theek nahin. Padosi ka murgha subah paanch baje bolta hai!",
+"text": "یہ گھر بھی ٹھیک نہیں۔ پڑوسی کا مرغا صبح پانچ بجے بولتا ہے!"
 },
 {
-"id": "ns1_005",
+"id": "ns1b_004",
 "who": "N",
 "emo": "playful",
 "roman": "Aur masjid? Chacha ne kabhi uska raasta bhi nahin dekha.",
 "text": "اور مسجد؟ چچا نے کبھی اس کا راستہ بھی نہیں دیکھا۔"
 },
 {
-"id": "ns1_006",
+"id": "ns1b_005",
 "who": "CHACHA",
-"emo": "playful",
+"emo": "naughty",
 "roman": "Namaz-shamaz baad mein! Pehle achha sa ghar to mil jaaye!",
 "text": "نماز شماز بعد میں! پہلے اچھا سا گھر تو مل جائے!"
 },
 {
-"id": "ns1_007",
+"id": "ns1b_006",
 "who": "N",
 "emo": "neutral",
-"roman": "Aur phir, ek din, Chacha ke phone par ek ishtehaar aaya.",
-"text": "اور پھر، ایک دن، چچا کے فون پر ایک اشتہار آیا۔"
+"roman": "Phir ek din, Chacha ke phone par ek ishtehaar aaya.",
+"text": "پھر ایک دن، چچا کے فون پر ایک اشتہار آیا۔"
 },
 {
-"id": "ns1_008",
+"id": "ns1b_007",
 "who": "CHACHA",
 "emo": "excited",
-"roman": "Poora hall... bijli, paani, internet sab shaamil? Bas! Yehi mera agla ghar hai!",
-"text": "پورا ہال... بجلی، پانی، انٹرنیٹ سب شامل؟ بس! یہی میرا اگلا گھر ہے!"
+"roman": "Poora hall, teen mahine ke liye... bijli, paani, internet sab shaamil? Bas! Yehi mera agla ghar hai!",
+"text": "پورا ہال، تین مہینے کے لیے... بجلی، پانی، انٹرنیٹ سب شامل؟ بس! یہی میرا اگلا گھر ہے!"
 },
 {
-"id": "ns1_009",
+"id": "ns1b_008",
 "who": "IMRAN",
 "emo": "warm",
 "roman": "Hello, assalamu alaikum. Main Imran bol raha hoon.",
 "text": "ہیلو، السلام علیکم۔ میں عمران بول رہا ہوں۔"
 },
 {
-"id": "ns1_010",
+"id": "ns1b_009",
 "who": "CHACHA",
 "emo": "excited",
-"roman": "Haan haan, woh hall! Main le raha hoon! Abhi aa raha hoon!",
-"text": "ہاں ہاں، وہ ہال! میں لے رہا ہوں! ابھی آ رہا ہوں!"
+"roman": "Haan haan, woh hall! Main le raha hoon! Kahaan milein?",
+"text": "ہاں ہاں، وہ ہال! میں لے رہا ہوں! کہاں ملیں؟"
 },
 {
-"id": "ns1_011",
+"id": "ns1b_010",
 "who": "IMRAN",
 "emo": "surprised",
-"roman": "Arre Chacha, pehle dekh to lijiye...",
-"text": "ارے چچا، پہلے دیکھ تو لیجیے..."
+"roman": "Arre Chacha... ghar ke saamne footpath par aa jaaiye, main wahin hoon.",
+"text": "ارے چچا... گھر کے سامنے فٹ پاتھ پر آ جائیے، میں وہیں ہوں۔"
 },
 {
-"id": "ns1_012",
+"id": "ns1b_011",
 "who": "CHACHA",
 "emo": "excited",
-"roman": "Dekhna kya hai beta? Internet hai na? Bas, main aa gaya!",
-"text": "دیکھنا کیا ہے بیٹا؟ انٹرنیٹ ہے نا؟ بس، میں آ گیا!"
+"roman": "Abhi aaya!",
+"text": "ابھی آیا!"
 },
 {
-"id": "ns1_013",
+"id": "ns1b_012",
 "who": "IMRAN",
 "emo": "laugh",
 "roman": "Hau... yeh to bade jaldi mein hain!",
 "text": "ہاؤ... یہ تو بڑے جلدی میں ہیں!"
 },
 {
-"id": "ns1_014",
+"id": "ns1b_013",
 "who": "N",
 "emo": "warm",
-"roman": "Yeh hain Imran. Hyderabad ke software engineer. Dil ke bade naram, aur haath ke bade khule.",
-"text": "یہ ہیں عمران۔ حیدرآباد کے سافٹ ویئر انجینئر۔ دل کے بڑے نرم، اور ہاتھ کے بڑے کھلے۔"
+"roman": "Yeh hain Imran. Hyderabad ke software engineer, dil ke bade naram. Unki family kuch mahinon ke liye India gayi hui hai.",
+"text": "یہ ہیں عمران۔ حیدرآباد کے سافٹ ویئر انجینئر، دل کے بڑے نرم۔ ان کی فیملی کچھ مہینوں کے لیے انڈیا گئی ہوئی ہے۔"
 },
 {
-"id": "ns1_015",
-"who": "CHACHA",
-"emo": "excited",
-"roman": "Main aa gaya!",
-"text": "میں آ گیا!"
-},
-{
-"id": "ns1_016",
+"id": "ns1b_014",
 "who": "IMRAN",
 "emo": "warm",
-"roman": "Aaiye Chacha, aaiye! Andar aaiye na.",
-"text": "آئیے چچا، آئیے! اندر آئیے نا۔"
+"roman": "Assalamu alaikum, Chacha! Aaiye, aaiye.",
+"text": "السلام علیکم، چچا! آئیے، آئیے۔"
 },
 {
-"id": "ns1_017",
+"id": "ns1b_015",
+"who": "CHACHA",
+"emo": "naughty",
+"roman": "Walaikum assalam, beta. Pehle ek baat bata do. Main har itwaar paaye ka soup banata hoon. Poore ghar mein khushboo aayegi. Koi problem to nahin hogi?",
+"text": "وعلیکم السلام، بیٹا۔ پہلے ایک بات بتا دو۔ میں ہر اتوار پائے کا سوپ بناتا ہوں۔ پورے گھر میں خوشبو آئے گی۔ کوئی پرابلم تو نہیں ہوگی؟"
+},
+{
+"id": "ns1b_016",
+"who": "IMRAN",
+"emo": "laugh",
+"roman": "Problem? Chacha, main Hyderabadi hoon. Paaye to hamari jaan hain!",
+"text": "پرابلم؟ چچا، میں حیدرآبادی ہوں۔ پائے تو ہماری جان ہیں!"
+},
+{
+"id": "ns1b_017",
+"who": "CHACHA",
+"emo": "naughty",
+"roman": "Phir to tumhe bhi milega... agar kiraya thoda kam ho jaaye! He he!",
+"text": "پھر تو تمہیں بھی ملے گا... اگر کرایہ تھوڑا کم ہو جائے! ہی ہی!"
+},
+{
+"id": "ns1b_018",
+"who": "CHACHA",
+"emo": "proud",
+"roman": "Aur suno! Main bhi jawani mein computer par kaam karta tha. Itna data dala, itna data... ke computer khud thak gaya!",
+"text": "اور سنو! میں بھی جوانی میں کمپیوٹر پر کام کرتا تھا۔ اتنا ڈیٹا ڈالا، اتنا ڈیٹا... کہ کمپیوٹر خود تھک گیا!"
+},
+{
+"id": "ns1b_019",
+"who": "IMRAN",
+"emo": "surprised",
+"roman": "Wah Chacha! Kaunsa computer tha?",
+"text": "واہ چچا! کون سا کمپیوٹر تھا؟"
+},
+{
+"id": "ns1b_020",
+"who": "CHACHA",
+"emo": "naughty",
+"roman": "Bada wala! Poore kamre jitna! Aaj kal ke tumhare laptop to bachche hain!",
+"text": "بڑا والا! پورے کمرے جتنا! آج کل کے تمہارے لیپ ٹاپ تو بچے ہیں!"
+},
+{
+"id": "ns1b_021",
+"who": "IMRAN",
+"emo": "warm",
+"roman": "Aaiye Chacha, ghar dikhata hoon. Yeh poora hall aapka. Bijli, paani, internet, sab shaamil.",
+"text": "آئیے چچا، گھر دکھاتا ہوں۔ یہ پورا ہال آپ کا۔ بجلی، پانی، انٹرنیٹ، سب شامل۔"
+},
+{
+"id": "ns1b_022",
+"who": "CHACHA",
+"emo": "naughty",
+"roman": "Hmm... jahan main abhi rehta hoon, wahan ke engineer ne to mujhe alag kamra aur closet bhi diya hai!",
+"text": "ہمم... جہاں میں ابھی رہتا ہوں، وہاں کے انجینئر نے تو مجھے الگ کمرہ اور کلوزٹ بھی دیا ہے!"
+},
+{
+"id": "ns1b_023",
+"who": "IMRAN",
+"emo": "warm",
+"roman": "Fikr mat kijiye, closet yahan bhi hai. Bas ek baat... yeh ghar sirf teen mahine ke liye hai. Meri family India gayi hui hai.",
+"text": "فکر مت کیجیے، کلوزٹ یہاں بھی ہے۔ بس ایک بات... یہ گھر صرف تین مہینے کے لیے ہے۔ میری فیملی انڈیا گئی ہوئی ہے۔"
+},
+{
+"id": "ns1b_024",
+"who": "CHACHA",
+"emo": "naughty",
+"roman": "Teen mahine? Arre, mere liye to yeh lambi muddat hai! He he!",
+"text": "تین مہینے؟ ارے، میرے لیے تو یہ لمبی مدت ہے! ہی ہی!"
+},
+{
+"id": "ns1b_025",
 "who": "N",
 "emo": "gentle",
 "roman": "Chacha ko dekh kar, Imran ko apne Abba yaad aa gaye... jo ab is duniya mein nahin hain.",
 "text": "چچا کو دیکھ کر، عمران کو اپنے ابّا یاد آ گئے... جو اب اس دنیا میں نہیں ہیں۔"
 },
 {
-"id": "ns1_018",
+"id": "ns1b_026",
 "who": "IMRAN",
 "emo": "gentle",
-"roman": "Abba bhi aise hi the... har baat mein jaldi.",
-"text": "ابّا بھی ایسے ہی تھے... ہر بات میں جلدی۔"
+"roman": "Abba bhi aise hi the... har baat mein jaldi. Agar main inki khidmat karoon, to Abba ki rooh bhi khush hogi... aur Allah bhi.",
+"text": "ابّا بھی ایسے ہی تھے... ہر بات میں جلدی۔ اگر میں ان کی خدمت کروں، تو ابّا کی روح بھی خوش ہوگی... اور اللہ بھی۔"
 },
 {
-"id": "ns1_019",
-"who": "IMRAN",
-"emo": "gentle",
-"roman": "Agar main ek buzurg ki khidmat karoon, to Abba ki rooh bhi khush hogi... aur Allah bhi.",
-"text": "اگر میں ایک بزرگ کی خدمت کروں، تو ابّا کی روح بھی خوش ہوگی... اور اللہ بھی۔"
-},
-{
-"id": "ns1_020",
-"who": "IMRAN",
-"emo": "warm",
-"roman": "Chacha, poora hall aapka. Bijli, paani, internet, sab shaamil hai.",
-"text": "چچا، پورا ہال آپ کا۔ بجلی، پانی، انٹرنیٹ، سب شامل ہے۔"
-},
-{
-"id": "ns1_021",
+"id": "ns1b_027",
 "who": "CHACHA",
-"emo": "surprised",
-"roman": "Sab shaamil? Aur kiraya kitna?",
-"text": "سب شامل؟ اور کرایہ کتنا؟"
+"emo": "naughty",
+"roman": "To beta... kiraya kitna?",
+"text": "تو بیٹا... کرایہ کتنا؟"
 },
 {
-"id": "ns1_022",
+"id": "ns1b_028",
 "who": "IMRAN",
 "emo": "warm",
 "roman": "Jitna aap de sakein, Chacha. Kaiku fikr karte aap?",
 "text": "جتنا آپ دے سکیں، چچا۔ کائیکو فکر کرتے آپ؟"
 },
 {
-"id": "ns1_023",
+"id": "ns1b_029",
 "who": "CHACHA",
 "emo": "happy",
 "roman": "Beta, tum to bilkul farishta ho!",
 "text": "بیٹا، تم تو بالکل فرشتہ ہو!"
 },
 {
-"id": "ns1_024",
+"id": "ns1b_030",
 "who": "CHACHA",
-"emo": "playful",
+"emo": "naughty",
 "roman": "Achha... wifi ka password kya hai?",
 "text": "اچھا... وائی فائی کا پاس ورڈ کیا ہے؟"
 },
 {
-"id": "ns1_025",
+"id": "ns1b_031",
 "who": "IMRAN",
 "emo": "laugh",
 "roman": "Ha ha ha!",
 "text": "ہا ہا ہا!"
 },
 {
-"id": "ns1_026",
-"who": "N",
-"emo": "playful",
-"roman": "Aur is tarah, Rasheed Chacha ko mil gaya apna pandrahvaan ghar.",
-"text": "اور اس طرح، رشید چچا کو مل گیا اپنا پندرہواں گھر۔"
-},
-{
-"id": "ns1_027",
+"id": "ns1b_032",
 "who": "N",
 "emo": "surprised",
-"roman": "Lekin kya Chacha yahan tik paayenge? Dekhiye agle episode mein... Aamad!",
-"text": "لیکن کیا چچا یہاں ٹک پائیں گے؟ دیکھیے اگلے ایپیسوڈ میں... آمد!"
+"roman": "Rasheed Chacha ko mil gaya apna pandrahvaan ghar. Lekin kya woh yahan teen mahine tik paayenge? Dekhiye agle episode mein... Aamad!",
+"text": "رشید چچا کو مل گیا اپنا پندرہواں گھر۔ لیکن کیا وہ یہاں تین مہینے ٹک پائیں گے؟ دیکھیے اگلے ایپیسوڈ میں... آمد!"
 }
 ]

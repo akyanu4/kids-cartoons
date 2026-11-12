@@ -103,12 +103,12 @@ def build():
                 _, who, emo, roman, ur = b
                 f = voice(who, emo, roman); d = dur(f)
                 bl.append({'kind': 'say', 'who': who, 'emo': emo, 'text': roman, 'file': f, 't': t, 'd': d, 'env': envelope(f)})
-                t += d + 0.3
+                t += d + story.GAP
             else:
                 f = sfx(b[1]); d = dur(f)
                 bl.append({'kind': 'sfx', 'name': b[1], 'who': SFX_WHO.get(b[1]), 'file': f, 't': t, 'd': d, 'env': envelope(f)})
-                t += d + 0.15
-        if name not in ('title', 'end'): t += 0.4          # a breath between scenes
+                t += d + 0.08
+        if name not in ('title', 'end'): t += story.SCENE_GAP   # a breath between scenes
         shots.append({'name': name, 't0': st, 't1': t, 'beats': bl})
     json.dump({'shots': shots, 'total': t}, open(f'{B}/timeline.json', 'w'), ensure_ascii=False)
     return shots, t
