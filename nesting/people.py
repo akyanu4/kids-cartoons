@@ -31,11 +31,13 @@ def _head(L, st, hy):
     else:
         g += f'<path d="M-60,{hy-10} Q-62,{hy+56} -30,{hy+74} Q0,{hy+86} 32,{hy+74} Q64,{hy+56} 62,{hy-10} Q58,{hy-74} 0,{hy-76} Q-58,{hy-74} -60,{hy-10}Z" fill="{sk}" {SW()}/>'
     if L['hair'] == 'bald':   # shiny dome, grey tufts over the ears, a few wisps on top
-        g += f'<ellipse cx="14" cy="{hy-70}" rx="24" ry="10" fill="#fff" opacity=".35" transform="rotate(-12,14,{hy-70})"/>'
+        g += f'<ellipse cx="22" cy="{hy-66}" rx="16" ry="7" fill="#fff" opacity=".25" transform="rotate(-12,22,{hy-66})"/>'
         for sx in (-1, 1):
             g += (f'<path d="M{sx*58},{hy-34} Q{sx*76},{hy-20} {sx*70},{hy+2} Q{sx*80},{hy+10} {sx*66},{hy+22} Q{sx*60},{hy+4} {sx*56},{hy-6} '
                   f'Q{sx*52},{hy-24} {sx*58},{hy-34}Z" fill="#c9c6c0" {SW(3.5)}/>')
-        g += f'<path d="M-8,{hy-96} q6,-16 18,-12 M4,{hy-97} q10,-14 20,-6" fill="none" stroke="#a8a49e" stroke-width="3" stroke-linecap="round"/>'
+        for k in range(-4, 5):
+            x0 = k * 11
+            g += f'<path d="M{x0-18},{hy-82+abs(k)*3} Q{x0},{hy-102+abs(k)*2} {x0+22},{hy-86+abs(k)*3}" fill="none" stroke="#b9b5ae" stroke-width="3.2" stroke-linecap="round" opacity=".95"/>'
     else:   # short black hair with a side parting
         g += (f'<path d="M-62,{hy-2} Q-70,{hy-58} -30,{hy-78} Q10,{hy-94} 46,{hy-74} Q70,{hy-58} 63,{hy-4} Q60,{hy-34} 48,{hy-46} '
               f'Q20,{hy-40} -6,{hy-56} Q-30,{hy-44} -54,{hy-30} Z" fill="#1c1410" {SW(4)}/>')
@@ -101,8 +103,14 @@ def person(st, L):
         g += f'<path d="M30,-350 L54,-350 L53,-322 Q42,-318 31,-322Z" fill="none" stroke="{sleeve_d}" stroke-width="3.5"/>'   # pocket
         g += f'<rect x="38" y="-362" width="6" height="18" rx="2" fill="#2d5aa8"/>'                                           # pen
     hy = -488
-    g += f'<rect x="-17" y="-446" width="34" height="34" fill="{shade(sk,.88)}"/>'
-    bw = L.get('broad', 1.0); up = -20 if L.get('shape') == 'square' else 0      # the long face sits a little higher on the neck
+    if L.get('shape') == 'square':
+        g += f'<path d="M-24,-470 L-26,-414 Q0,-404 26,-414 L24,-470Z" fill="{shade(sk,.9)}" {SW(4)}/>'
+        for yy, w_ in ((-452, 14), (-440, 18), (-428, 12)):
+            g += f'<path d="M{-w_},{yy} Q0,{yy+5} {w_},{yy}" fill="none" stroke="#3b2a20" stroke-width="2.4" opacity=".45"/>'
+        g += f'<path d="M-6,-424 L0,-412 L6,-424" fill="none" stroke="#3b2a20" stroke-width="2" opacity=".35"/>'
+    else:
+        g += f'<rect x="-17" y="-446" width="34" height="34" fill="{shade(sk,.88)}"/>'
+    bw = L.get('broad', 1.0); up = -44 if L.get('shape') == 'square' else 0      # the long face sits higher: his neck shows
     g += (f'<g transform="rotate({st.get("head_tilt",0)},0,-420)"><g transform="translate(0,{hy+up}) scale({bw},1) translate(0,{-hy})">'
           + _head(L, st, hy) + '</g></g>')
     if st.get('arms_front'): g += back_arm(False)
