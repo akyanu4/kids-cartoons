@@ -177,5 +177,5 @@ def scene(t, fps=None):
     name, cam, lay, over, texts = out
     if lay:
         parts = lay.split('\x00')
-        lay = ''.join(ORIG[states[int(p)][0]](states[int(p)][1]) if k % 2 else p for k, p in enumerate(parts))
+        lay = ''.join('\x01' + ORIG[states[int(p)][0]](states[int(p)][1]) + '\x01' if k % 2 else p for k, p in enumerate(parts))
     return name, cam, lay, over, texts

@@ -14,7 +14,9 @@ INK = '#3b2a20'
 STROKE = 5
 
 
-def SW(w=STROKE): return f'stroke="{INK}" stroke-width="{w}" stroke-linejoin="round" stroke-linecap="round"'
+import soft as _soft
+if _soft.ON: INK = '#5e4434'          # soft look: thin warm-brown outlines instead of thick dark ink
+def SW(w=STROKE): return f'stroke="{INK}" stroke-width="{w * 0.5 if _soft.ON else w}" stroke-linejoin="round" stroke-linecap="round"'
 
 
 def shade(hexc, f=0.82):
@@ -61,7 +63,7 @@ def face(r, st, kind):
     e = ex(st.get('expr')); talk = st.get('talk', 0); blink = st.get('blink', 0)
     look = st.get('look', 0.35); look_y = st.get('look_y', e.get('look_y', 0))
     fx = r * 0.14                    # features turned a little toward the facing side
-    ey = -r * 0.06; exs = r * 0.36; ew, eh = r * 0.2, r * 0.17
+    ey = -r * 0.06; exs = r * 0.36; ew, eh = (r * 0.22, r * 0.195) if _soft.ON else (r * 0.2, r * 0.17)   # soft look: bigger eyes
     s = ''
     # cheek blush + soft shading on the far side
     s += f'<ellipse cx="{fx - exs - r*.08}" cy="{r*.3}" rx="{r*.24}" ry="{r*.16}" fill="url(#blush)"/>'

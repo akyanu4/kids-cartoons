@@ -2,6 +2,7 @@
 import os, sys, json, math, io, subprocess
 from multiprocessing import Pool
 import cairosvg
+import soft
 from PIL import Image, ImageDraw, ImageFont
 import chars2 as C, chars as C1, masjid_story as story
 
@@ -91,7 +92,7 @@ def bg(name):
         if not os.path.exists(f):
             w, s = bg_svg(name)
             cairosvg.svg2png(bytestring=f'<svg xmlns="http://www.w3.org/2000/svg" width="{w}" height="{H}">{s}</svg>'.encode(), write_to=f)
-        _bg[name] = Image.open(f).convert('RGB')
+        _bg[name] = soft.background(Image.open(f).convert('RGB'))
     return _bg[name]
 
 # ---------------------------------------------------------------- timing
@@ -370,9 +371,7 @@ if os.environ.get('MOTION', '1') == '1': motion.install(sys.modules[__name__])
 def frame(t):
     name, (cx, zoom), lay, over, texts = motion.scene(t) if motion._M else scene(t)
     b = bg(name); bw = b.width; world = b.copy()
-    if lay:
-        png = cairosvg.svg2png(bytestring=f'<svg xmlns="http://www.w3.org/2000/svg" width="{bw}" height="{H}">{C.DEFS}{lay}</svg>'.encode())
-        o = Image.open(io.BytesIO(png)); world.paste(o, (0, 0), o)
+    if lay: soft.draw(world, lay, C.DEFS, bw, H, cairosvg.svg2png)
     lift = 0 if name_of(t) in ('title', 'moral', 'end') else LIFT     # keep feet and sajda above the captions
     if lift:
         tall = Image.new('RGB', (bw, H + lift), (181, 56, 58)); tall.paste(world, (0, 0))

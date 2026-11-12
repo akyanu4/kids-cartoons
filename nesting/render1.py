@@ -5,6 +5,7 @@ from multiprocessing import Pool
 HERE = os.path.dirname(os.path.abspath(__file__)); ROOT = os.path.dirname(HERE)
 sys.path.insert(0, HERE); sys.path.insert(0, ROOT); os.chdir(ROOT)
 import cairosvg
+import soft
 from PIL import Image, ImageDraw, ImageFont
 import chars2 as C, people as P, ep1_story as story
 
@@ -146,7 +147,7 @@ def bg(name):
         if not os.path.exists(f):
             w, s = bg_svg(name)
             cairosvg.svg2png(bytestring=f'<svg xmlns="http://www.w3.org/2000/svg" width="{w}" height="{H}">{s}</svg>'.encode(), write_to=f)
-        _bg[name] = Image.open(f).convert('RGB')
+        _bg[name] = soft.background(Image.open(f).convert('RGB'))
     return _bg[name]
 
 
@@ -460,9 +461,7 @@ if os.environ.get('MOTION', '1') == '1': motion.install(sys.modules[__name__])
 def frame(t):
     name, (cx, zoom), lay, over, texts = motion.scene(t) if motion._M else scene(t)
     b = bg(BG_OF[name]); bw = b.width; world = b.copy()
-    if lay:
-        png = cairosvg.svg2png(bytestring=f'<svg xmlns="http://www.w3.org/2000/svg" width="{bw}" height="{H}">{C.DEFS}<defs>{P.HALO}</defs>{lay}</svg>'.encode())
-        o = Image.open(io.BytesIO(png)); world.paste(o, (0, 0), o)
+    if lay: soft.draw(world, lay, C.DEFS + '<defs>' + P.HALO + '</defs>', bw, H, cairosvg.svg2png)
     lift = 0 if name in CARDS else LIFT
     if lift:
         tall = Image.new('RGB', (bw, H + lift), world.getpixel((10, H - 2))); tall.paste(world, (0, 0))
