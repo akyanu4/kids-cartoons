@@ -478,7 +478,7 @@ def ali(st, look=None):
     g += f'<g transform="translate(0,{hy+6})">' + (face_profile(70, st, L['kind'], ALI_SKIN_) if PROF else face(70, st, L['kind'])) + '</g>'
     g += '</g>'
     # front arm
-    if st.get('arms_front'): g += arm(-40, -280 + _shoulder_lift(ab), ab, ebb, 60, 56, 27, RED, .45, ALI_SKIN_, st.get('hand_b', 'relax'), back=True, hand_ang=st.get('hand_ang_b'))
+    if st.get('arms_front'): g += arm(-40, -280 + _shoulder_lift(ab), ab, ebb, 60, 56, 27, RED, .45, ALI_SKIN_, st.get('hand_b', 'relax'), back=bool(st.get('profile')), hand_ang=st.get('hand_ang_b'))
     g += arm(42, -280 + _shoulder_lift(af), af, ebf, 60, 56, 27, RED, .45, ALI_SKIN_, st.get('hand_f', 'relax'), hand_ang=st.get('hand_ang_f'),
              holding=st.get('hold'), hold_tilt=st.get('hold_tilt', 0))
     g += f'<ellipse cx="38" cy="{-276 + _shoulder_lift(af)}" rx="18" ry="16" fill="{RED}"/>'
@@ -510,7 +510,7 @@ def maryam(st):
     g += f'<path d="M-66,{hy-2} Q-60,{hy-60} 0,{hy-66} Q60,{hy-60} 66,{hy-2} Q50,{hy-46} 0,{hy-50} Q-50,{hy-46} -66,{hy-2}Z" fill="{SCARF}" {SW(4)}/>'
     g += f'<path d="M-40,{hy-40} Q0,{hy-52} 40,{hy-40}" fill="none" stroke="#2a1a12" stroke-width="8" stroke-linecap="round"/>'
     g += f'<g transform="translate(0,{hy+10})">' + (face_profile(60, st, 'maryam', MAR_SKIN) if st.get('profile') else face(60, st, 'maryam')) + '</g></g>'
-    if st.get('arms_front'): g += arm(-36, -272 + _shoulder_lift(ab), ab, ebb, 56, 52, 24, DRESS, 2, MAR_SKIN, st.get('hand_b', 'relax'), back=True, hand_ang=st.get('hand_ang_b'))
+    if st.get('arms_front'): g += arm(-36, -272 + _shoulder_lift(ab), ab, ebb, 56, 52, 24, DRESS, 2, MAR_SKIN, st.get('hand_b', 'relax'), back=bool(st.get('profile')), hand_ang=st.get('hand_ang_b'))
     g += arm(38, -272 + _shoulder_lift(af), af, ebf, 56, 52, 24, DRESS, 2, MAR_SKIN, st.get('hand_f', 'relax'), hand_ang=st.get('hand_ang_f'))
     g += f'<ellipse cx="34" cy="{-268 + _shoulder_lift(af)}" rx="16" ry="15" fill="{DRESS}"/>'
     g += '</g></g>'
@@ -573,7 +573,7 @@ def nana(st):
         g += f'<path d="M{l},-20 Q{(l+r_)/2},-28 {r_},-20 M{l+1},-12 L{r_-1},-12" fill="none" stroke="#c9b48a" stroke-width="3"/>'
         g += f'<path d="M{fx + 62*.36 + 21},-20 L60,-14" stroke="#3a2a22" stroke-width="4"/>'
     g += '</g></g>'
-    if st.get('arms_front'): g += arm(-50, -392 + _shoulder_lift(ab), ab, ebb, 86, 80, 32, KURTA, 2, NANA_SKIN, st.get('hand_b', 'relax'), back=True, hand_ang=st.get('hand_ang_b'))
+    if st.get('arms_front'): g += arm(-50, -392 + _shoulder_lift(ab), ab, ebb, 86, 80, 32, KURTA, 2, NANA_SKIN, st.get('hand_b', 'relax'), back=bool(st.get('profile')), hand_ang=st.get('hand_ang_b'))
     g += arm(52, -392 + _shoulder_lift(af), af, ebf, 86, 80, 32, KURTA, 2, NANA_SKIN, st.get('hand_f', 'relax'), hand_ang=st.get('hand_ang_f'))
     g += f'<ellipse cx="47" cy="{-386 + _shoulder_lift(af)}" rx="20" ry="18" fill="{KURTA}"/>'
     g += '</g></g>'
