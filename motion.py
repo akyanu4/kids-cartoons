@@ -69,9 +69,13 @@ def _full(n, st):
     """the state after the pose is applied, with defaults filled in, so two states can be averaged"""
     q = C.apply_pose(st, KIND[n])
     if q.get('pose') not in STILL_POSES and q.get('pose') != 'sit' and q.get('walk') is None:
-        for k in ('arm_f', 'arm_b'): q.setdefault(k, 6)
+        # standing: both arms in front of the body so neither hand disappears behind it,
+        # the far arm hanging a little out at the side
+        q.setdefault('arm_f', 6); q.setdefault('arm_b', -10); q['arms_front'] = True
         for k, a in (('elb_f', 'arm_f'), ('elb_b', 'arm_b')):
             v = q[a]; q.setdefault(k, 12 if v < 40 else (25 if v < 120 else 30))
+    if not q.get('profile') and q.get('walk') is None and q.get('pose') != 'sit' and 'foot' not in q:
+        q['foot'] = 'front'                                   # toes point at the viewer when standing
     for k, v in (('lean', 0), ('head_tilt', 0), ('look_y', 0), ('face', 1), ('s', 1)): q.setdefault(k, v)
     q['_expr'] = _expr_dict(q.get('expr'))
     return q

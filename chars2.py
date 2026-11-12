@@ -254,6 +254,10 @@ def leg(hx, hy, ang, knee, L1, L2, w, pants, shoe, back=False, foot=None):
     p = shade(pants, .88) if back else pants
     s = capsule([(hx, hy), (kx, ky), (ax, ay)], w, p)
     sh = shade(shoe, .85) if back else shoe
+    if foot == 'front':      # standing facing the viewer: toes point at the camera, seen from the front
+        s += (f'<g transform="translate({ax:.1f},{ay:.1f})"><path d="M{-w*.6},-6 Q{-w*.72},{w*.52} 0,{w*.55} Q{w*.72},{w*.52} {w*.6},-6Z" fill="{sh}" {SW(4)}/>'
+              f'<ellipse cx="0" cy="{w*.3}" rx="{w*.32}" ry="{w*.13}" fill="#fff" opacity=".18"/></g>')
+        return s
     s += f'<g transform="translate({ax:.1f},{ay:.1f}) rotate({(-sa*0.35 if foot is None else foot):.1f})"><path d="M{-w*.55},-4 Q{-w*.6},{w*.45} {-w*.2},{w*.5} L{w*1.15},{w*.5} Q{w*1.35},{w*.1} {w*.6},-6Z" fill="{sh}" {SW(4)}/></g>'
     return s
 
