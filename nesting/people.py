@@ -14,7 +14,7 @@ import chars2 as C
 from chars2 import SW, shade, arm, leg, face, ex, gait, apply_pose, _arms_state, _shoulder_lift
 
 CHACHA = dict(skin='#C98E62', kameez='#d7dde0', kameez_d='#b9c2c6', vest='#7a5232', pants='#d7dde0', shoe='#4a3426',
-              hair='bald', facial='none', glasses=None, kind='nana', outfit='kameez', broad=1.2)
+              hair='bald', facial='none', glasses=None, kind='nana', outfit='kameez', broad=1.08, shape='square')
 IMRAN = dict(skin='#BF845A', shirt='#8fc1e8', shirt_d='#6fa3cc', pants='#434b58', shoe='#2b2b2b', belt='#5a3b25',
              hair='short', facial='none', glasses=None, kind='ali', outfit='shirt')
 
@@ -24,13 +24,18 @@ def _head(L, st, hy):
     if L['hair'] == 'short':   # back hair mass behind the head
         g += f'<path d="M-64,{hy+4} Q-70,{hy-70} 0,{hy-84} Q70,{hy-70} 64,{hy+4} Z" fill="#1c1410" {SW(4)}/>'
     g += f'<ellipse cx="-58" cy="{hy+6}" rx="13" ry="18" fill="{shade(sk,.94)}" {SW(4)}/><ellipse cx="62" cy="{hy+6}" rx="12" ry="17" fill="{sk}" {SW(4)}/>'
-    g += f'<path d="M-60,{hy-10} Q-62,{hy+56} -30,{hy+74} Q0,{hy+86} 32,{hy+74} Q64,{hy+56} 62,{hy-10} Q58,{hy-74} 0,{hy-76} Q-58,{hy-74} -60,{hy-10}Z" fill="{sk}" {SW()}/>'
+    if L.get('shape') == 'square':   # long, square face: straight cheeks, wide flat jaw, tall forehead
+        g += (f'<path d="M-60,{hy-30} L-60,{hy+60} Q-60,{hy+96} -26,{hy+100} L28,{hy+100} Q62,{hy+96} 62,{hy+60} L62,{hy-30} '
+              f'Q60,{hy-96} 0,{hy-98} Q-58,{hy-96} -60,{hy-30}Z" fill="{sk}" {SW()}/>')
+        g += f'<path d="M-22,{hy+88} Q0,{hy+94} 24,{hy+88}" fill="none" stroke="#3b2a20" stroke-width="2.5" opacity=".3"/>'
+    else:
+        g += f'<path d="M-60,{hy-10} Q-62,{hy+56} -30,{hy+74} Q0,{hy+86} 32,{hy+74} Q64,{hy+56} 62,{hy-10} Q58,{hy-74} 0,{hy-76} Q-58,{hy-74} -60,{hy-10}Z" fill="{sk}" {SW()}/>'
     if L['hair'] == 'bald':   # shiny dome, grey tufts over the ears, a few wisps on top
-        g += f'<ellipse cx="14" cy="{hy-52}" rx="22" ry="10" fill="#fff" opacity=".35" transform="rotate(-15,14,{hy-52})"/>'
+        g += f'<ellipse cx="14" cy="{hy-70}" rx="24" ry="10" fill="#fff" opacity=".35" transform="rotate(-12,14,{hy-70})"/>'
         for sx in (-1, 1):
             g += (f'<path d="M{sx*58},{hy-34} Q{sx*76},{hy-20} {sx*70},{hy+2} Q{sx*80},{hy+10} {sx*66},{hy+22} Q{sx*60},{hy+4} {sx*56},{hy-6} '
                   f'Q{sx*52},{hy-24} {sx*58},{hy-34}Z" fill="#c9c6c0" {SW(3.5)}/>')
-        g += f'<path d="M-8,{hy-74} q6,-16 18,-12 M4,{hy-75} q10,-14 20,-6" fill="none" stroke="#a8a49e" stroke-width="3" stroke-linecap="round"/>'
+        g += f'<path d="M-8,{hy-96} q6,-16 18,-12 M4,{hy-97} q10,-14 20,-6" fill="none" stroke="#a8a49e" stroke-width="3" stroke-linecap="round"/>'
     else:   # short black hair with a side parting
         g += (f'<path d="M-62,{hy-2} Q-70,{hy-58} -30,{hy-78} Q10,{hy-94} 46,{hy-74} Q70,{hy-58} 63,{hy-4} Q60,{hy-34} 48,{hy-46} '
               f'Q20,{hy-40} -6,{hy-56} Q-30,{hy-44} -54,{hy-30} Z" fill="#1c1410" {SW(4)}/>')
@@ -38,7 +43,7 @@ def _head(L, st, hy):
     g += f'<g transform="translate(0,{hy+2})">' + face(62, st, L['kind'])
     fx = 62 * 0.14
     talk = st.get('talk', 0) + ex(st.get('expr'))['mopen'] * .55; jaw = min(talk, 1) * 8
-    if L['facial'] == 'none':   # clean-shaven: a soft chin line
+    if L['facial'] == 'none' and L.get('shape') != 'square':   # clean-shaven: a soft chin line
         g += f'<path d="M-16,{70} Q0,{76} 16,{70}" fill="none" stroke="#3b2a20" stroke-width="2.5" opacity=".3"/>'
     elif L['facial'] == 'moustache':   # big grey handlebar moustache
         g += (f'<path d="M{fx-6},18 Q{fx-30},12 {fx-46},26 Q{fx-54},34 {fx-50},40 Q{fx-40},30 {fx-26},32 Q{fx-12},30 {fx},24 '
@@ -96,9 +101,9 @@ def person(st, L):
         g += f'<path d="M30,-350 L54,-350 L53,-322 Q42,-318 31,-322Z" fill="none" stroke="{sleeve_d}" stroke-width="3.5"/>'   # pocket
         g += f'<rect x="38" y="-362" width="6" height="18" rx="2" fill="#2d5aa8"/>'                                           # pen
     hy = -488
-    g += f'<rect x="-17" y="-438" width="34" height="26" fill="{shade(sk,.88)}"/>'
-    bw = L.get('broad', 1.0)
-    g += (f'<g transform="rotate({st.get("head_tilt",0)},0,-420)"><g transform="translate(0,{hy}) scale({bw},1) translate(0,{-hy})">'
+    g += f'<rect x="-17" y="-446" width="34" height="34" fill="{shade(sk,.88)}"/>'
+    bw = L.get('broad', 1.0); up = -20 if L.get('shape') == 'square' else 0      # the long face sits a little higher on the neck
+    g += (f'<g transform="rotate({st.get("head_tilt",0)},0,-420)"><g transform="translate(0,{hy+up}) scale({bw},1) translate(0,{-hy})">'
           + _head(L, st, hy) + '</g></g>')
     if st.get('arms_front'): g += back_arm(False)
     g += arm(52, -392 + _shoulder_lift(af), af, ebf, 86, 80, 32, top, 2, sk, st.get('hand_f', 'relax'),
