@@ -339,7 +339,7 @@ def scene(t):
 
     if n == 'imran':
         i = person('IMRAN', t, sh, x=900, y=GROUND, face=1, expr='warm')
-        i.update(arm_b=150 + 12 * math.sin(lt * 6), elb_b=20, hand_b='wave', expr='happy')
+        i.update(arm_f=150 + 12 * math.sin(lt * 6), elb_f=20, hand_f='wave', expr='happy')
         lay = P.abba_photo(1500, 330, 0.75) + P.imran(i)
         a = ease((lt - 0.5) / 0.5)
         texts = [('L:Imran', 1380, 860 - LIFT, 64, (47, 120, 191), a), ('L:Software Engineer, Hyderabad', 1380, 930 - LIFT, 38, (60, 50, 40), a)]
