@@ -14,7 +14,7 @@ import chars2 as C
 from chars2 import SW, shade, arm, leg, face, ex, gait, apply_pose, _arms_state, _shoulder_lift
 
 CHACHA = dict(skin='#C98E62', kameez='#d7dde0', kameez_d='#b9c2c6', vest='#7a5232', pants='#d7dde0', shoe='#4a3426',
-              hair='bald', facial='none', glasses=None, kind='nana', outfit='kameez', broad=1.08, shape='square')
+              hair='sidepart', facial='none', glasses=None, kind='nana', outfit='kameez', broad=1.08, shape='square')
 IMRAN = dict(skin='#BF845A', shirt='#8fc1e8', shirt_d='#6fa3cc', pants='#434b58', shoe='#2b2b2b', belt='#5a3b25',
              hair='short', facial='none', glasses=None, kind='ali', outfit='shirt')
 
@@ -30,14 +30,13 @@ def _head(L, st, hy):
         g += f'<path d="M-20,{hy+86} Q0,{hy+92} 22,{hy+86}" fill="none" stroke="#3b2a20" stroke-width="2.5" opacity=".28"/>'
     else:
         g += f'<path d="M-60,{hy-10} Q-62,{hy+56} -30,{hy+74} Q0,{hy+86} 32,{hy+74} Q64,{hy+56} 62,{hy-10} Q58,{hy-74} 0,{hy-76} Q-58,{hy-74} -60,{hy-10}Z" fill="{sk}" {SW()}/>'
-    if L['hair'] == 'bald':   # shiny dome, grey tufts over the ears, a few wisps on top
-        g += f'<ellipse cx="22" cy="{hy-66}" rx="16" ry="7" fill="#fff" opacity=".25" transform="rotate(-12,22,{hy-66})"/>'
-        for sx in (-1, 1):
-            g += (f'<path d="M{sx*58},{hy-34} Q{sx*76},{hy-20} {sx*70},{hy+2} Q{sx*80},{hy+10} {sx*66},{hy+22} Q{sx*60},{hy+4} {sx*56},{hy-6} '
-                  f'Q{sx*52},{hy-24} {sx*58},{hy-34}Z" fill="#c9c6c0" {SW(3.5)}/>')
-        for k in range(-4, 5):
-            x0 = k * 11
-            g += f'<path d="M{x0-18},{hy-82+abs(k)*3} Q{x0},{hy-102+abs(k)*2} {x0+22},{hy-86+abs(k)*3}" fill="none" stroke="#b9b5ae" stroke-width="3.2" stroke-linecap="round" opacity=".95"/>'
+    if L['hair'] == 'sidepart':   # grey hair with a side parting, cut short above the ears
+        g += (f'<path d="M-58,{hy-34} Q-64,{hy-84} -20,{hy-96} Q20,{hy-108} 50,{hy-88} Q66,{hy-70} 61,{hy-34} '
+              f'Q56,{hy-58} 36,{hy-64} Q8,{hy-70} -18,{hy-62} Q-28,{hy-76} -30,{hy-86} Q-40,{hy-60} -58,{hy-34}Z" fill="#c4c0b9" {SW(4)}/>')
+        g += f'<path d="M-30,{hy-86} Q-26,{hy-74} -18,{hy-62}" fill="none" stroke="#8f8a85" stroke-width="3"/>'          # the parting
+        for k in range(5):
+            x0 = -12 + k * 14
+            g += f'<path d="M{x0},{hy-90+k*2} Q{x0+18},{hy-86+k*2} {x0+30},{hy-72+k*3}" fill="none" stroke="#e8e6e1" stroke-width="2.6" stroke-linecap="round" opacity=".9"/>'
     else:   # short black hair with a side parting
         g += (f'<path d="M-62,{hy-2} Q-70,{hy-58} -30,{hy-78} Q10,{hy-94} 46,{hy-74} Q70,{hy-58} 63,{hy-4} Q60,{hy-34} 48,{hy-46} '
               f'Q20,{hy-40} -6,{hy-56} Q-30,{hy-44} -54,{hy-30} Z" fill="#1c1410" {SW(4)}/>')
