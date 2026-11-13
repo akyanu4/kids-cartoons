@@ -1,0 +1,142 @@
+[
+{
+"id": "song_intro_ALI",
+"who": "ALI",
+"emo": "excited",
+"text": "لا لا لا... اقرا! لیٹس لرن!",
+"roman": "La la la... Iqra! Let's Learn!"
+},
+{
+"id": "song_ch1_ALI",
+"who": "ALI",
+"emo": "excited",
+"text": "علی ہے، علی ہے، پیارا پیارا علی!",
+"roman": "Ali hai, Ali hai, pyaara pyaara Ali!"
+},
+{
+"id": "song_ch2_ALI",
+"who": "ALI",
+"emo": "excited",
+"text": "سب کا دوست، سب کا یار، ہمارا اپنا علی!",
+"roman": "Sab ka dost, sab ka yaar, hamara apna Ali!"
+},
+{
+"id": "song_intro_BILAL",
+"who": "BILAL",
+"emo": "excited",
+"text": "لا لا لا... اقرا! لیٹس لرن!",
+"roman": "La la la... Iqra! Let's Learn!"
+},
+{
+"id": "song_ch1_BILAL",
+"who": "BILAL",
+"emo": "excited",
+"text": "علی ہے، علی ہے، پیارا پیارا علی!",
+"roman": "Ali hai, Ali hai, pyaara pyaara Ali!"
+},
+{
+"id": "song_ch2_BILAL",
+"who": "BILAL",
+"emo": "excited",
+"text": "سب کا دوست، سب کا یار، ہمارا اپنا علی!",
+"roman": "Sab ka dost, sab ka yaar, hamara apna Ali!"
+},
+{
+"id": "song_intro_ZAID",
+"who": "ZAID",
+"emo": "excited",
+"text": "لا لا لا... اقرا! لیٹس لرن!",
+"roman": "La la la... Iqra! Let's Learn!"
+},
+{
+"id": "song_ch1_ZAID",
+"who": "ZAID",
+"emo": "excited",
+"text": "علی ہے، علی ہے، پیارا پیارا علی!",
+"roman": "Ali hai, Ali hai, pyaara pyaara Ali!"
+},
+{
+"id": "song_ch2_ZAID",
+"who": "ZAID",
+"emo": "excited",
+"text": "سب کا دوست، سب کا یار، ہمارا اپنا علی!",
+"roman": "Sab ka dost, sab ka yaar, hamara apna Ali!"
+},
+{
+"id": "song_intro_MARYAM",
+"who": "MARYAM",
+"emo": "excited",
+"text": "لا لا لا... اقرا! لیٹس لرن!",
+"roman": "La la la... Iqra! Let's Learn!"
+},
+{
+"id": "song_ch1_MARYAM",
+"who": "MARYAM",
+"emo": "excited",
+"text": "علی ہے، علی ہے، پیارا پیارا علی!",
+"roman": "Ali hai, Ali hai, pyaara pyaara Ali!"
+},
+{
+"id": "song_ch2_MARYAM",
+"who": "MARYAM",
+"emo": "excited",
+"text": "سب کا دوست، سب کا یار، ہمارا اپنا علی!",
+"roman": "Sab ka dost, sab ka yaar, hamara apna Ali!"
+},
+{
+"id": "song_v1",
+"who": "MARYAM",
+"emo": "excited",
+"text": "صبح اٹھے، بسم اللہ بولے",
+"roman": "Subah uthe, Bismillah bole"
+},
+{
+"id": "song_v2",
+"who": "MARYAM",
+"emo": "excited",
+"text": "سب کو کہتا السلام!",
+"roman": "Sab ko kehta Assalam!"
+},
+{
+"id": "song_v3",
+"who": "MARYAM",
+"emo": "excited",
+"text": "بستہ اٹھائے، اسکول کو جائے",
+"roman": "Basta uthaaye, school ko jaaye"
+},
+{
+"id": "song_v4",
+"who": "MARYAM",
+"emo": "excited",
+"text": "ہنستے ہنستے کرتا کام!",
+"roman": "Hanste hanste karta kaam!"
+},
+{
+"id": "song_v5",
+"who": "BILAL",
+"emo": "excited",
+"text": "کھیل کھلونے بانٹ کے کھیلے",
+"roman": "Khel khilone baant ke khele"
+},
+{
+"id": "song_v6",
+"who": "BILAL",
+"emo": "excited",
+"text": "دوست بنائے ڈھیر سارے",
+"roman": "Dost banaaye dher saare"
+},
+{
+"id": "song_v7",
+"who": "ZAID",
+"emo": "excited",
+"text": "جھوٹ نہ بولے، سچ ہی بولے",
+"roman": "Jhoot na bole, sach hi bole"
+},
+{
+"id": "song_v8",
+"who": "ZAID",
+"emo": "excited",
+"text": "سب کہتے، واہ علی پیارے!",
+"roman": "Sab kehte, wah Ali pyaare!"
+}
+]
