@@ -7,7 +7,9 @@ HERE = os.path.dirname(os.path.abspath(__file__)); ROOT = os.path.dirname(os.pat
 VO = os.path.join(ROOT, 'songs/chant/voices'); B = os.path.join(ROOT, 'build_sing'); os.makedirs(B, exist_ok=True)
 SR = 48000; BPM = 116; BEAT = 60 / BPM; E8 = BEAT / 2
 NOTE = {n: 440 * 2 ** ((i - 9) / 12) for i, n in enumerate(['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'])}
-def hz(n): return NOTE[n[:-1]] * 2 ** (int(n[-1]) - 4)
+KEY_SHIFT = -5                     # song in G instead of C: closer to the kids' own speaking pitch, so words stay clear
+def hz(n, shift=0): return NOTE[n[:-1]] * 2 ** (int(n[-1]) - 4) * 2 ** ((KEY_SHIFT + shift) / 12)
+OCT = {'ALI': 0, 'MARYAM': 0, 'BILAL': -12, 'ZAID': -12}   # deeper voices sing an octave lower
 
 # melody per line: (note, length in eighths) - one entry per syllable
 MEL = {
@@ -40,7 +42,7 @@ def nuclei(x, want):
     return np.array(sel) * 0.01
 
 
-def sing(x, mel, start_pad=0.0):
+def sing(x, mel, shift=0):
     """retime syllables onto the note grid and tune them to the notes"""
     fp = 5.0
     f0, t = pw.harvest(x, SR, frame_period=fp); sp = pw.cheaptrick(x, f0, t, SR); ap = pw.d4c(x, f0, t, SR)
@@ -59,7 +61,7 @@ def sing(x, mel, start_pad=0.0):
     # melody pitch curve with a short glide and vibrato on long notes
     p = np.zeros(len(T))
     for k, (nt, l) in enumerate(mel):
-        a = onsets[k]; b = a + l * E8; m = (T >= a) & (T < b); f = hz(nt)
+        a = onsets[k]; b = a + l * E8; m = (T >= a) & (T < b); f = hz(nt, shift)
         vib = 1 + (0.012 * np.sin(2 * np.pi * 5.5 * (T[m] - a)) * np.clip((T[m] - a - 0.18) / 0.15, 0, 1) if l >= 2 else 0)
         p[m] = f * vib
     p = np.convolve(p, np.ones(7) / 7, 'same')                       # ~35 ms glides between notes
@@ -95,27 +97,25 @@ def backing(bars, prog, mel_lines=()):
             if q in (0, 3, 4): y[a:a + len(K)] += K * 0.9
             if q in (2, 6): y[a:a + len(Sn)] += Sn
             y[a:a + len(Hh)] += Hh * (1.0 if q % 2 else 0.6)
-            bn = hz(root[:-1] + '2'); bs = tone(bn * (1.5 if q in (3, 7) else 1), E8 * 0.9, 'bass', 0.5)
+            bn = hz(root[:-1] + '2'); bs = tone(bn * (1.5 if q in (3, 7) else 1), E8 * 0.9, 'bass', 0.45)
             y[a:a + len(bs)] += bs
             if q % 2 == 1:                                    # off-beat ukulele-ish chord stabs
                 for nt in CHORDS[ch]:
-                    s = tone(hz(nt), E8 * 0.8, 'pluck', 0.16); y[a:a + len(s)] += s
-        pd = sum(tone(hz(nt), 4 * BEAT, 'pad', 0.08) for nt in CHORDS[ch]); a = int(b * 4 * BEAT * SR); y[a:a + len(pd)] += pd
+                    s = tone(hz(nt), E8 * 0.8, 'pluck', 0.11); y[a:a + len(s)] += s
+        pd = sum(tone(hz(nt), 4 * BEAT, 'pad', 0.04) for nt in CHORDS[ch]); a = int(b * 4 * BEAT * SR); y[a:a + len(pd)] += pd
     return y
 
 
 def test():
-    kids = ['ALI', 'BILAL', 'ZAID', 'MARYAM']
     bars = 4; music = backing(bars + 1, ['C', 'G', 'Am', 'F'])
-    out = music * 0.55
+    out = music * 0.30
+    mix = {'ALI': 1.0, 'MARYAM': 0.28, 'BILAL': 0.22, 'ZAID': 0.0}   # Ali leads, two friends softly behind
     for li, key in enumerate(['ch1', 'ch2']):
-        line_start = 2 * BAR * li + BAR * 0 + 0.0 if False else li * 8 * E8 * 2  # each line = 2 bars
-        for j, w in enumerate(kids):
-            v = sing(load(f'song_{key}_{w}'), MEL[key])
-            v = np.convolve(v, [0.6, 0.3, 0.1], 'same')     # soften a little
-            a = int((line_start + 0.01 * j) * SR); out[a:a + len(v)] += v * 0.32
-    # light room echo so the choir blends
-    d = int(0.09 * SR); out[d:] += out[:-d] * 0.18
+        line_start = li * 8 * E8 * 2
+        for w, vol in mix.items():
+            if not vol: continue
+            v = sing(load(f'song_{key}_{w}'), MEL[key], OCT[w])
+            a = int(line_start * SR); out[a:a + len(v)] += v * vol * 0.6
     out = out / (np.abs(out).max() + 1e-9) * 0.92
     sf.write(f'{B}/chorus_test.wav', np.stack([out, out], 1), SR)
     print('ok', f'{B}/chorus_test.wav', round(len(out) / SR, 1))
